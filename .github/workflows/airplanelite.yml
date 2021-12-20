@@ -35,5 +35,5 @@ jobs:
 
       - uses: actions/upload-artifact@v2
         with:
-          name: Airplane-JDK${{ matrix.java }}
-          path: *.jar
+          name: Sustopia-JDK${{ matrix.java }}
+          path: sustopia-paperclip.jar

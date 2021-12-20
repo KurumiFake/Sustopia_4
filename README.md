@@ -2,13 +2,15 @@
 
 A sussy server software that you shouldnt use (the first rel is production ready tho cuz i only removed stuff and bump log4j)
 
-**NOTE: This is a 1.16.5 fork. For newer version, check out [Pufferfish](https://github.com/pufferfish-gg/pufferfish) (not made by me, good and stable)**
+**NOTE: This is a 1.16.5 fork. For newer versions, check out [Pufferfish](https://github.com/pufferfish-gg/pufferfish) (not made by me, good and stable)**
 
 ## Building the fork
 
 ```bash
+./gradlew applyPatches
 ./gradlew paperclip
 # or on windows
+gradle.bat applyPatches
 gradle.bat paperclip
 ```
 

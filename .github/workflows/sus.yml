@@ -25,13 +25,13 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-maven-
 
-      - name: Patch Airplane
+      - name: Patch Sustopia
         run: |
-          git config --global user.email "you@example.com"
-          git config --global user.name "Your Name"
+          git config --global user.email "kurumiisshidowife@gmail.com"
+          git config --global user.name "KurumiFake"
           ./gradlew applyPatches
-          tar -cf a.tar *
+          tar -cf a.tar Sustopia-*
       - uses: actions/upload-artifact@v2
         with:
-          name: Airplane-JDK${{ matrix.java }}
+          name: Sustopia-JDK${{ matrix.java }}
           path: a.tar

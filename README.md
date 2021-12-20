@@ -8,9 +8,11 @@ A sussy server software that you shouldnt use (the first rel is production ready
 
 ```bash
 ./gradlew applyPatches
+./gradlew build
 ./gradlew paperclip
 # or on windows
 gradle.bat applyPatches
+gradle.bat build
 gradle.bat paperclip
 ```
 

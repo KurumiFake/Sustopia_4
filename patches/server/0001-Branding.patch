@@ -1,0 +1,75 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: KurumiFake <kurumiisshidowife@gmail.com>
+Date: Mon, 20 Dec 2021 16:44:28 +0700
+Subject: [PATCH] Branding
+
+
+diff --git a/pom.xml b/pom.xml
+index 9b14a752ea1db9ad1b47aaea67fb62df8383f4c9..278704ef7dae6bc12796b228879cd13df871fa51 100644
+--- a/pom.xml
++++ b/pom.xml
+@@ -39,8 +39,8 @@
+ 
+     <dependencies>
+         <dependency>
+-            <groupId>gg.airplane</groupId>
+-            <artifactId>airplane-api</artifactId>
++            <groupId>me.kurumifake</groupId>
++            <artifactId>sustopia-api</artifactId>
+             <version>${project.version}</version>
+             <scope>compile</scope>
+         </dependency>
+diff --git a/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java b/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
+index 3c4bd267e8a15f89226379e25c80869c1d4c9106..6ad5e2be56dd947848058e38f3764812b76a7775 100644
+--- a/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
++++ b/src/main/java/com/destroystokyo/paper/PaperVersionFetcher.java
+@@ -29,8 +29,8 @@ public class PaperVersionFetcher implements VersionFetcher {
+     @Nonnull
+     @Override
+     public Component getVersionMessage(@Nonnull String serverVersion) {
+-        String[] parts = serverVersion.substring("git-Airplane-".length()).split("[-\\s]"); // Tuinity
+-        final Component updateMessage = getUpdateStatusMessage("TECHNOVE/Airplane", GITHUB_BRANCH_NAME, parts[0]); // Tuinity
++        String[] parts = serverVersion.substring("git-Sustopia-".length()).split("[-\\s]"); // Tuinity // Sustopia
++        final Component updateMessage = getUpdateStatusMessage("KurumiFake/Sustopia", GITHUB_BRANCH_NAME, parts[0]); // Tuinity // Sustopia
+         final Component history = getHistory();
+ 
+         return history != null ? TextComponent.ofChildren(updateMessage, Component.newline(), history) : updateMessage;
+diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
+index ea31fb2fa674b4ea0c49efb7eeb001103122ebbd..33057150ccf3e174d369c255b0e93471499d8045 100644
+--- a/src/main/java/net/minecraft/server/MinecraftServer.java
++++ b/src/main/java/net/minecraft/server/MinecraftServer.java
+@@ -1655,7 +1655,7 @@ public abstract class MinecraftServer extends IAsyncTaskHandlerReentrant<TickTas
+     }
+ 
+     public String getServerModName() {
+-        return "Airplane"; // Airplane // Tuinity //Paper - Paper > // Spigot - Spigot > // CraftBukkit - cb > vanilla!
++        return "Sustopia"; // Sustopia // Airplane // Tuinity //Paper - Paper > // Spigot - Spigot > // CraftBukkit - cb > vanilla!
+     }
+ 
+     public CrashReport b(CrashReport crashreport) {
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+index c62e4f2a0a0697bcc55a3f14a638414b027e44a7..e6842ca3d7f75f9df3814b9bc1f00b753b115a3b 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+@@ -230,7 +230,7 @@ import javax.annotation.Nullable; // Paper
+ import javax.annotation.Nonnull; // Paper
+ 
+ public final class CraftServer implements Server {
+-    private final String serverName = "Airplane"; // Paper // Tuinity // Airplane
++    private final String serverName = "Sustopia"; // Paper // Tuinity // Airplane // Sustopia
+     private final String serverVersion;
+     private final String bukkitVersion = Versioning.getBukkitVersion();
+     private final Logger logger = Logger.getLogger("Minecraft");
+diff --git a/src/main/java/org/bukkit/craftbukkit/util/Versioning.java b/src/main/java/org/bukkit/craftbukkit/util/Versioning.java
+index 1788d79ea489e446d3d9f541693d4ba3dfc26015..d343b97b0ec37bfa4e0da5c68c28f549a64cf52f 100644
+--- a/src/main/java/org/bukkit/craftbukkit/util/Versioning.java
++++ b/src/main/java/org/bukkit/craftbukkit/util/Versioning.java
+@@ -11,7 +11,7 @@ public final class Versioning {
+     public static String getBukkitVersion() {
+         String result = "Unknown-Version";
+ 
+-        InputStream stream = Bukkit.class.getClassLoader().getResourceAsStream("META-INF/maven/gg.airplane/airplane-api/pom.properties"); // Tuinity // Airplane
++        InputStream stream = Bukkit.class.getClassLoader().getResourceAsStream("META-INF/maven/me.kurumifake/sustopia-api/pom.properties"); // Tuinity // Airplane // Sustopia
+         Properties properties = new Properties();
+ 
+         if (stream != null) {

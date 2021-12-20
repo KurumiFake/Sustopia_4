@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: KurumiFake <kurumiisshidowife@gmail.com>
+Date: Mon, 20 Dec 2021 16:34:36 +0700
+Subject: [PATCH] bump
+
+
+diff --git a/pom.xml b/pom.xml
+index 6fd6066b16d4dbf8695be16ec8b2d135d4d04901..48419bf235d2f33f9017bd26e27bad3b827ec84f 100644
+--- a/pom.xml
++++ b/pom.xml
+@@ -148,7 +148,7 @@
+         <dependency>
+             <groupId>org.slf4j</groupId>
+             <artifactId>slf4j-api</artifactId>
+-            <version>1.7.25</version>
++            <version>1.7.32</version>
+             <scope>compile</scope>
+         </dependency>
+         <!-- testing -->

@@ -4,12 +4,12 @@ plugins {
 }
 
 toothpick {
-    forkName = "MyAirplaneFork"
-    groupId = "com.mygroupid"
+    forkName = "Sustopia"
+    groupId = "me.kurumifake"
     val versionTag = System.getenv("BUILD_NUMBER")
         ?: "\"${commitHash() ?: error("Could not obtain git hash")}\""
     forkVersion = "git-$forkName-$versionTag"
-    forkUrl = "https://github.com/MyName/MyAirplaneFork"
+    forkUrl = "https://github.com/KurumiFake/Sustopia"
 
     minecraftVersion = "1.16.5"
     nmsPackage = "1_16_R3"
@@ -18,7 +18,7 @@ toothpick {
     upstream = "Airplane"
     upstreamBranch = "origin/master"
 
-    paperclipName = "launcher-myairplanefork"
+    paperclipName = "sustopia-paperclip"
 
     server {
         project = project(":$forkNameLowercase-server")

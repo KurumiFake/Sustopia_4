@@ -1,0 +1,28 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: KurumiFake <kurumiisshidowife@gmail.com>
+Date: Mon, 20 Dec 2021 15:53:00 +0000
+Subject: [PATCH] Bump dependencies
+
+
+diff --git a/pom.xml b/pom.xml
+index fcea49defd9ac7a03c33a7bac36388aaa3f53687..8ea9a7bab96b06daca0ba9264deed9f6233eb911 100644
+--- a/pom.xml
++++ b/pom.xml
+@@ -30,7 +30,7 @@
+             <dependency>
+                 <groupId>org.apache.logging.log4j</groupId>
+                 <artifactId>log4j-bom</artifactId>
+-                <version>2.11.2</version>
++                <version>2.17.0</version>
+                 <type>pom</type>
+                 <scope>import</scope>
+             </dependency>
+@@ -54,7 +54,7 @@
+         <dependency>
+             <groupId>io.netty</groupId>
+             <artifactId>netty-all</artifactId>
+-            <version>4.1.50.Final</version>
++            <version>4.1.69.Final</version>
+         </dependency>
+         <!-- Tuinity end - fix compile issue (cannot see new api) by moving netty include BEFORE server jar -->
+         <dependency>

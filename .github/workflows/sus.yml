@@ -30,9 +30,11 @@ jobs:
           git config --global user.email "you@example.com"
           git config --global user.name "Your Name"
           ./gradlew applyPatches
-          ./gradlew build
-          ./gradlew paperclip
+#          ./gradlew build
+#          ./gradlew paperclip
+          tar -cf a.tar *
       - uses: actions/upload-artifact@v2
         with:
           name: Airplane-JDK${{ matrix.java }}
-          path: launcher-airplane.jar
+#          path: launcher-airplane.jar
+          path: a.tar

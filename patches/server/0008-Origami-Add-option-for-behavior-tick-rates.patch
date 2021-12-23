@@ -5,49 +5,6 @@ Subject: [PATCH] (Origami) Add option for behavior tick rates
 
 // Sustopia: this thin is hlaf baked cuz KurumiFake cnat edit de file for sensor tick,
 
-diff --git a/src/main/java/net/minecraft/world/entity/ai/behavior/Behavior.java b/src/main/java/net/minecraft/world/entity/ai/behavior/Behavior.java
-index 717e5f71fb919ac8952a077714d7f4581d546a28..aa25cfd49a3e73d5675cd3df57ee32937a6ca8c9 100644
---- a/src/main/java/net/minecraft/world/entity/ai/behavior/Behavior.java
-+++ b/src/main/java/net/minecraft/world/entity/ai/behavior/Behavior.java
-@@ -15,6 +15,10 @@ public abstract class Behavior<E extends EntityLiving> {
-     private long c;
-     private final int d;
-     private final int e;
-+    // Origami start - configurable behavior tick rate
-+    private final String configKey;
-+    private static final String RATE_TYPE = "behavior";
-+    // Origami end
- 
-     public Behavior(Map<MemoryModuleType<?>, MemoryStatus> map) {
-         this(map, 60);
-@@ -29,6 +33,14 @@ public abstract class Behavior<E extends EntityLiving> {
-         this.d = i;
-         this.e = j;
-         this.a = map;
-+        // Origami start - configurable behavior tick rate
-+        String key = getClass().getName().startsWith("net.minecraft.server.") ? getClass().getSimpleName() : getClass().getName();
-+        key = key.toLowerCase();
-+        if (key.startsWith(RATE_TYPE)) {
-+            key = key.substring(RATE_TYPE.length());
-+        }
-+        this.configKey = key;
-+        // Origami end
-     }
- 
-     public Behavior.Status a() {
-@@ -36,6 +48,12 @@ public abstract class Behavior<E extends EntityLiving> {
-     }
- 
-     public final boolean e(WorldServer worldserver, E e0, long i) {
-+        // Origami start - configurable behavior tick rates
-+        int tickRate = worldserver.origamiConfig.getTickRate(RATE_TYPE, configKey, e0.getMinecraftKey().getKey(), -1);
-+        if (tickRate > -1 && i < this.c + tickRate) {
-+            return false;
-+        }
-+        // Origami end
-         if (this.a(e0) && this.a(worldserver, e0)) {
-             this.b = Behavior.Status.RUNNING;
-             int j = this.d + worldserver.getRandom().nextInt(this.e + 1 - this.d);
 diff --git a/src/main/java/de/minebench/origami/OrigamiConfig.java b/src/main/java/de/minebench/origami/OrigamiConfig.java
 index a2403c14d12682900de6be02497a2e278eb16c47..5a86c9b1c20b3f9f3a7bc5142121679a32062488 100644
 --- a/src/main/java/de/minebench/origami/OrigamiConfig.java
@@ -99,3 +56,46 @@ index a2403c14d12682900de6be02497a2e278eb16c47..5a86c9b1c20b3f9f3a7bc5142121679a
      }
  
  }
+diff --git a/src/main/java/net/minecraft/world/entity/ai/behavior/Behavior.java b/src/main/java/net/minecraft/world/entity/ai/behavior/Behavior.java
+index 717e5f71fb919ac8952a077714d7f4581d546a28..aa25cfd49a3e73d5675cd3df57ee32937a6ca8c9 100644
+--- a/src/main/java/net/minecraft/world/entity/ai/behavior/Behavior.java
++++ b/src/main/java/net/minecraft/world/entity/ai/behavior/Behavior.java
+@@ -15,6 +15,10 @@ public abstract class Behavior<E extends EntityLiving> {
+     private long c;
+     private final int d;
+     private final int e;
++    // Origami start - configurable behavior tick rate
++    private final String configKey;
++    private static final String RATE_TYPE = "behavior";
++    // Origami end
+ 
+     public Behavior(Map<MemoryModuleType<?>, MemoryStatus> map) {
+         this(map, 60);
+@@ -29,6 +33,14 @@ public abstract class Behavior<E extends EntityLiving> {
+         this.d = i;
+         this.e = j;
+         this.a = map;
++        // Origami start - configurable behavior tick rate
++        String key = getClass().getName().startsWith("net.minecraft.server.") ? getClass().getSimpleName() : getClass().getName();
++        key = key.toLowerCase();
++        if (key.startsWith(RATE_TYPE)) {
++            key = key.substring(RATE_TYPE.length());
++        }
++        this.configKey = key;
++        // Origami end
+     }
+ 
+     public Behavior.Status a() {
+@@ -36,6 +48,12 @@ public abstract class Behavior<E extends EntityLiving> {
+     }
+ 
+     public final boolean e(WorldServer worldserver, E e0, long i) {
++        // Origami start - configurable behavior tick rates
++        int tickRate = worldserver.origamiConfig.getTickRate(RATE_TYPE, configKey, e0.getMinecraftKey().getKey(), -1);
++        if (tickRate > -1 && i < this.c + tickRate) {
++            return false;
++        }
++        // Origami end
+         if (this.a(e0) && this.a(worldserver, e0)) {
+             this.b = Behavior.Status.RUNNING;
+             int j = this.d + worldserver.getRandom().nextInt(this.e + 1 - this.d);

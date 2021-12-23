@@ -1,0 +1,61 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: KurumiFake <kurumiisshidowife@gmail.com>
+Date: Thu, 23 Dec 2021 04:30:16 +0000
+Subject: [PATCH] (Origami) Don't wake up entities when damage event is
+ cancelled
+
+
+diff --git a/src/main/java/net/minecraft/world/entity/EntityInsentient.java b/src/main/java/net/minecraft/world/entity/EntityInsentient.java
+index 0f0bf91a3d01c0eb841db81ac441cf5936a2cdfe..65dfdc4e89f3d3224cb9bd79b8fb7c4633a56ed1 100644
+--- a/src/main/java/net/minecraft/world/entity/EntityInsentient.java
++++ b/src/main/java/net/minecraft/world/entity/EntityInsentient.java
+@@ -796,10 +796,11 @@ public abstract class EntityInsentient extends EntityLiving {
+ 
+             if (entityhuman != null) {
+                 double d0 = entityhuman.h((Entity) this); // CraftBukkit - decompile error
+-                int i = this.getEntityType().e().f();
+-                int j = i * i;
+-
+-                if (d0 > (double) world.paperConfig.hardDespawnDistance) { // CraftBukkit - remove isTypeNotPersistent() check // Paper - custom despawn distances
++                // Origami start - Fix creature type despawn distances not applying
++                double i = this.getEntityType().e().f() / 128.0D; // Ratio to the default despawn 128. Yes it's a magic number, sue me.
++                double j = i * i;
++                if (d0 > (double) world.paperConfig.hardDespawnDistance * j) { // CraftBukkit - remove isTypeNotPersistent() check // Paper - custom despawn distances
++                // Origami end
+                     this.die();
+                 }
+ 
+diff --git a/src/main/java/net/minecraft/world/entity/EntityLiving.java b/src/main/java/net/minecraft/world/entity/EntityLiving.java
+index 88fc16e49076cf5589e27660a388909291447fac..61c0bdef02596b66a2fdc72afc5789bd7fd1c165 100644
+--- a/src/main/java/net/minecraft/world/entity/EntityLiving.java
++++ b/src/main/java/net/minecraft/world/entity/EntityLiving.java
+@@ -1208,9 +1208,12 @@ public abstract class EntityLiving extends Entity {
+         } else if (damagesource.isFire() && this.hasEffect(MobEffects.FIRE_RESISTANCE)) {
+             return false;
+         } else {
+-            if (this.isSleeping() && !this.world.isClientSide) {
+-                this.entityWakeup();
+-            }
++            // Origami start - Don't wake up entities when damage event is cancelled
++            // moved down into damageEntity0
++            //if (this.isSleeping() && !this.world.isClientSide) {
++            //    this.entityWakeup();
++            //}
++            // Origami end
+ 
+             this.ticksFarFromPlayer = 0;
+             float f1 = f;
+@@ -1958,9 +1961,11 @@ public abstract class EntityLiving extends Entity {
+                 }
+                 // Paper end
+             }
+-            if (event.isCancelled()) {
+-                return false;
++            // Origami start - Don't wake up entities when damage event is cancelled
++            if (this.isSleeping() && !this.world.isClientSide) {
++                this.entityWakeup();
+             }
++            // Origami end
+ 
+             f = (float) event.getFinalDamage();
+ 

@@ -1,11 +1,11 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: KurumiFake <kurumiisshidowife@gmail.com>
-Date: Mon, 20 Dec 2021 16:07:09 +0000
-Subject: [PATCH] Bump dependencies
+Date: Thu, 23 Dec 2021 04:33:30 +0000
+Subject: [PATCH] partially update dependencies
 
 
 diff --git a/pom.xml b/pom.xml
-index fcea49defd9ac7a03c33a7bac36388aaa3f53687..370113420020f639d0549a63216de3a9520b70fc 100644
+index fcea49defd9ac7a03c33a7bac36388aaa3f53687..1cb4c06fc4213de0790937e1b00f99bae8cc1d11 100644
 --- a/pom.xml
 +++ b/pom.xml
 @@ -30,7 +30,7 @@
@@ -13,7 +13,7 @@ index fcea49defd9ac7a03c33a7bac36388aaa3f53687..370113420020f639d0549a63216de3a9
                  <groupId>org.apache.logging.log4j</groupId>
                  <artifactId>log4j-bom</artifactId>
 -                <version>2.11.2</version>
-+                <version>2.17.0</version>
++                <version>2.15.0</version>
                  <type>pom</type>
                  <scope>import</scope>
              </dependency>

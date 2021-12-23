@@ -1,0 +1,74 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: KurumiFake <kurumiisshidowife@gmail.com>
+Date: Wed, 22 Dec 2021 06:03:19 +0000
+Subject: [PATCH] Origami config files
+
+
+diff --git a/src/main/java/net/minecraft/world/level/World.java b/src/main/java/net/minecraft/world/level/World.java
+index d1591f8d0b45126acef5d24ddb41d76293f5b42d..4bad1f5361fa671afb495f70ba4d37eca6ebc19f 100644
+--- a/src/main/java/net/minecraft/world/level/World.java
++++ b/src/main/java/net/minecraft/world/level/World.java
+@@ -157,6 +157,8 @@ public abstract class World implements GeneratorAccess, AutoCloseable {
+     public final com.destroystokyo.paper.PaperWorldConfig paperConfig; // Paper
+     public final ChunkPacketBlockController chunkPacketBlockController; // Paper - Anti-Xray
+ 
++    public final de.minebench.origami.OrigamiConfig.WorldConfig origamiConfig; // Origami - World Config
++
+     public final com.tuinity.tuinity.config.TuinityConfig.WorldConfig tuinityConfig; // Tuinity - Server Config
+ 
+     public final co.aikar.timings.WorldTimingsHandler timings; // Paper
+@@ -255,6 +257,7 @@ public abstract class World implements GeneratorAccess, AutoCloseable {
+     protected World(WorldDataMutable worlddatamutable, ResourceKey<World> resourcekey, final DimensionManager dimensionmanager, Supplier<GameProfilerFiller> supplier, boolean flag, boolean flag1, long i, org.bukkit.generator.ChunkGenerator gen, org.bukkit.World.Environment env, java.util.concurrent.Executor executor) { // Paper
+         this.spigotConfig = new org.spigotmc.SpigotWorldConfig(((net.minecraft.world.level.storage.WorldDataServer) worlddatamutable).getName()); // Spigot
+         this.paperConfig = new com.destroystokyo.paper.PaperWorldConfig(((net.minecraft.world.level.storage.WorldDataServer) worlddatamutable).getName(), this.spigotConfig); // Paper
++        this.origamiConfig = new de.minebench.origami.OrigamiConfig.WorldConfig(((net.minecraft.world.level.storage.WorldDataServer) worlddatamutable).getName()); // Origami - World Config
+         this.chunkPacketBlockController = this.paperConfig.antiXray ? new ChunkPacketBlockControllerAntiXray(this, executor) : ChunkPacketBlockController.NO_OPERATION_INSTANCE; // Paper - Anti-Xray
+         this.tuinityConfig = new com.tuinity.tuinity.config.TuinityConfig.WorldConfig(((net.minecraft.world.level.storage.WorldDataServer)worlddatamutable).getName()); // Tuinity - Server Config
+         this.generator = gen;
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+index e6842ca3d7f75f9df3814b9bc1f00b753b115a3b..303f8e9de115620bddd75fa173f5be74af9dda44 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+@@ -881,6 +881,7 @@ public final class CraftServer implements Server {
+         org.spigotmc.SpigotConfig.init((File) console.options.valueOf("spigot-settings")); // Spigot
+         com.destroystokyo.paper.PaperConfig.init((File) console.options.valueOf("paper-settings")); // Paper
+         com.tuinity.tuinity.config.TuinityConfig.init((File) console.options.valueOf("tuinity-settings")); // Tuinity - Server Config
++        de.minebench.origami.OrigamiConfig.init((File) console.options.valueOf("origami-settings")); // Origami - Server Config
+         for (WorldServer world : console.getWorlds()) {
+             world.worldDataServer.setDifficulty(config.difficulty);
+             world.setSpawnFlags(config.spawnMonsters, config.spawnAnimals);
+@@ -916,6 +917,7 @@ public final class CraftServer implements Server {
+             world.spigotConfig.init(); // Spigot
+             world.paperConfig.init(); // Paper
+             world.tuinityConfig.init(); // Tuinity - Server Config
++            world.origamiConfig.init(); // Origami - World Config
+         }
+ 
+         Plugin[] pluginClone = pluginManager.getPlugins().clone(); // Paper
+diff --git a/src/main/java/org/bukkit/craftbukkit/Main.java b/src/main/java/org/bukkit/craftbukkit/Main.java
+index fbeca329f62325aa479f968e7f0f04cde341a009..1345ee267a61caf97e5b4f6ee641cadb10698fb6 100644
+--- a/src/main/java/org/bukkit/craftbukkit/Main.java
++++ b/src/main/java/org/bukkit/craftbukkit/Main.java
+@@ -154,6 +154,14 @@ public class Main {
+                         .describedAs("Yml file");
+                 /* Conctete End - Server Config */
+ 
++                // Origami Start - Server Config
++                acceptsAll(asList("origami", "origami-settings"), "File for origami settings")
++                        .withRequiredArg()
++                        .ofType(File.class)
++                        .defaultsTo(new File("origami.yml"))
++                        .describedAs("Yml file");
++                // Origami end - Server Config
++
+                 // Paper start
+                 acceptsAll(asList("server-name"), "Name of the server")
+                         .withRequiredArg()
+@@ -292,6 +300,7 @@ public class Main {
+                 }
+                 // Paper end
+                 System.setProperty( "library.jansi.version", "Paper" ); // Paper - set meaningless jansi version to prevent git builds from crashing on Windows
++                de.minebench.origami.OrigamiConfig.init((java.io.File) options.valueOf("origami-settings")); // Origami - Server Config
+                 System.out.println("Loading libraries, please wait...");
+                 net.minecraft.server.Main.main(options);
+             } catch (Throwable t) {

@@ -10,7 +10,6 @@ jobs:
         with:
           java-version: 8
           distribution: 'zulu'
-          cache: maven
       - name: Patch Sustopia
         run: |
           git config --global user.email "kurumiisshidowife@gmail.com"

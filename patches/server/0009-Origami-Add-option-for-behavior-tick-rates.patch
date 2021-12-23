@@ -3,6 +3,7 @@ From: KurumiFake <kurumiisshidowife@gmail.com>
 Date: Thu, 23 Dec 2021 04:16:48 +0000
 Subject: [PATCH] (Origami) Add option for behavior tick rates
 
+// Sustopia: this thin is hlaf baked cuz KurumiFake cnat edit de file for sensor tick,
 
 diff --git a/src/main/java/net/minecraft/world/entity/ai/behavior/Behavior.java b/src/main/java/net/minecraft/world/entity/ai/behavior/Behavior.java
 index 717e5f71fb919ac8952a077714d7f4581d546a28..aa25cfd49a3e73d5675cd3df57ee32937a6ca8c9 100644
@@ -47,3 +48,54 @@ index 717e5f71fb919ac8952a077714d7f4581d546a28..aa25cfd49a3e73d5675cd3df57ee3293
          if (this.a(e0) && this.a(worldserver, e0)) {
              this.b = Behavior.Status.RUNNING;
              int j = this.d + worldserver.getRandom().nextInt(this.e + 1 - this.d);
+diff --git a/src/main/java/de/minebench/origami/OrigamiConfig.java b/src/main/java/de/minebench/origami/OrigamiConfig.java
+index a2403c14d12682900de6be02497a2e278eb16c47..5a86c9b1c20b3f9f3a7bc5142121679a32062488 100644
+--- a/src/main/java/de/minebench/origami/OrigamiConfig.java
++++ b/src/main/java/de/minebench/origami/OrigamiConfig.java
+@@ -1,11 +1,14 @@
+ package de.minebench.origami;
+ 
+ import org.bukkit.Bukkit;
++import org.bukkit.configuration.ConfigurationSection;
+ import org.bukkit.configuration.file.YamlConfiguration;
+ 
+ import java.io.File;
+ import java.lang.reflect.Method;
+ import java.lang.reflect.Modifier;
++import java.util.HashMap;
++import java.util.Map;
+ import java.util.logging.Level;
+ 
+ public final class OrigamiConfig {
+@@ -112,6 +115,31 @@ public final class OrigamiConfig {
+             config.addDefault("worlds.default." + path, Double.valueOf(dfl));
+             return config.getDouble("worlds." + worldName + "." + path, config.getDouble("worlds.default." + path, dfl));
+         }
++
++        private Map<String, Integer> tickRates = new HashMap<>();
++        private void tickRates() {
++            config.addDefault("worlds.default.tick-rates.sensor.villager.secondaryplaces", 40);
++            config.addDefault("worlds.default.tick-rates.behavior.villager.positionvalidate", 20);
++            tickRates = new HashMap<>();
++            Bukkit.getLogger().info("Tick rates:");
++            ConfigurationSection tickRatesSection = config.getConfigurationSection("worlds." + worldName + ".tick-rates");
++            if (tickRatesSection == null) {
++                tickRatesSection = config.getConfigurationSection("worlds.default.tick-rates");
++            }
++            for (String key : tickRatesSection.getKeys(true)) {
++                if (tickRatesSection.isInt(key)) {
++                    int tickRate = tickRatesSection.getInt(key);
++                    tickRates.put(key.toLowerCase(), tickRate);
++                    Bukkit.getLogger().info("  " + key + ": " + tickRate);
++                }
++            }
++            if (tickRates.isEmpty()) {
++                Bukkit.getLogger().info("  None configured");
++            }
++        }
++        public int getTickRate(String type, String typeName, String entityType, int def) {
++            return tickRates.getOrDefault(type + "." + entityType + "." + typeName, tickRates.getOrDefault(type + "." + typeName, def));
++        }
+     }
+ 
+ }

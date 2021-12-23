@@ -1,0 +1,28 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: KurumiFake <kurumiisshidowife@gmail.com>
+Date: Thu, 23 Dec 2021 17:09:45 +0000
+Subject: [PATCH] update deps
+
+
+diff --git a/pom.xml b/pom.xml
+index 345a4cb5cfd59eb8e6ebcd5d43ac56a391a24f8d..976ec58de423091cc09e399406229a79666e227f 100644
+--- a/pom.xml
++++ b/pom.xml
+@@ -55,7 +55,7 @@
+         <dependency>
+             <groupId>io.netty</groupId>
+             <artifactId>netty-all</artifactId>
+-            <version>4.1.50.Final</version>
++            <version>4.1.72.Final</version>
+         </dependency>
+         <!-- Tuinity end - fix compile issue (cannot see new api) by moving netty include BEFORE server jar -->
+         <dependency>
+@@ -100,7 +100,7 @@
+         <dependency>
+             <groupId>com.lmax</groupId>
+             <artifactId>disruptor</artifactId>
+-            <version>3.4.2</version>
++            <version>3.4.4</version>
+             <scope>runtime</scope>
+         </dependency>
+         <dependency>

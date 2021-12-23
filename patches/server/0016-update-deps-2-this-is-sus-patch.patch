@@ -1,0 +1,33 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: KurumiFake <kurumiisshidowife@gmail.com>
+Date: Thu, 23 Dec 2021 17:14:53 +0000
+Subject: [PATCH] update deps 2 this is sus patch
+
+
+diff --git a/pom.xml b/pom.xml
+index 976ec58de423091cc09e399406229a79666e227f..3c7b6aa4cb2387c874e9874c8a4198bf6e262658 100644
+--- a/pom.xml
++++ b/pom.xml
+@@ -157,7 +157,7 @@
+         <dependency>
+             <groupId>org.apache.logging.log4j</groupId>
+             <artifactId>log4j-slf4j-impl</artifactId>
+-            <version>2.14.1</version>-->
++            <!-- <version>2.14.1</version> -->
+             <scope>runtime</scope>
+             <exclusions>
+                 <!-- included in minecraft-server -->
+@@ -283,6 +283,13 @@
+                             <dependencyReducedPomLocation>${project.build.directory}/dependency-reduced-pom.xml</dependencyReducedPomLocation> <!-- Paper -->
+                             <createSourcesJar>${shadeSourcesJar}</createSourcesJar>
+                             <filters>
++                                <filter>
++                                    <artifact>org.spigotmc:minecraft-server:**</artifact>
++                                    <excludes>
++                                        <exclude>io/netty/**</exclude>
++                                        <exclude>org/apache/logging/log4j/**</exclude>
++                                    </excludes>
++                                </filter>
+                                 <filter>
+                                     <artifact>io.papermc:minecraft-server</artifact>
+                                     <excludes>

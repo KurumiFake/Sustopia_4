@@ -1,0 +1,72 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: KurumiFake <kurumiisshidowife@gmail.com>
+Date: Thu, 23 Dec 2021 17:08:28 +0000
+Subject: [PATCH] update deps
+
+
+diff --git a/pom.xml b/pom.xml
+index fcea49defd9ac7a03c33a7bac36388aaa3f53687..345a4cb5cfd59eb8e6ebcd5d43ac56a391a24f8d 100644
+--- a/pom.xml
++++ b/pom.xml
+@@ -16,6 +16,7 @@
+         <minecraft_version>1_16_R3</minecraft_version>
+         <maven.compiler.source>1.8</maven.compiler.source>
+         <maven.compiler.target>1.8</maven.compiler.target>
++        <log4j2.version>2.17.0</log4j2.version>
+     </properties>
+ 
+     <parent>
+@@ -30,7 +31,7 @@
+             <dependency>
+                 <groupId>org.apache.logging.log4j</groupId>
+                 <artifactId>log4j-bom</artifactId>
+-                <version>2.11.2</version>
++                <version>2.17.0</version>
+                 <type>pom</type>
+                 <scope>import</scope>
+             </dependency>
+@@ -125,38 +126,38 @@
+         <dependency>
+             <groupId>org.xerial</groupId>
+             <artifactId>sqlite-jdbc</artifactId>
+-            <version>3.34.0</version>
++            <version>3.36.0.3</version>
+             <scope>runtime</scope>
+         </dependency>
+         <dependency>
+             <groupId>mysql</groupId>
+             <artifactId>mysql-connector-java</artifactId>
+-            <version>8.0.23</version>
++            <version>8.0.27</version>
+             <scope>runtime</scope>
+         </dependency>
+         <!-- add these back in as they are not exposed by the API -->
+         <dependency>
+             <groupId>org.apache.maven</groupId>
+             <artifactId>maven-resolver-provider</artifactId>
+-            <version>3.8.1</version>
++            <version>3.8.3</version>
+             <scope>runtime</scope>
+         </dependency>
+         <dependency>
+             <groupId>org.apache.maven.resolver</groupId>
+             <artifactId>maven-resolver-connector-basic</artifactId>
+-            <version>1.6.2</version>
++            <version>1.7.3</version>
+             <scope>runtime</scope>
+         </dependency>
+         <dependency>
+             <groupId>org.apache.maven.resolver</groupId>
+             <artifactId>maven-resolver-transport-http</artifactId>
+-            <version>1.6.2</version>
++            <version>1.7.3</version>
+             <scope>runtime</scope>
+         </dependency>
+         <dependency>
+             <groupId>org.apache.logging.log4j</groupId>
+             <artifactId>log4j-slf4j-impl</artifactId>
+-            <!--<version>2.8.1</version>--> <!--handled by bom-->
++            <version>2.14.1</version>-->
+             <scope>runtime</scope>
+             <exclusions>
+                 <!-- included in minecraft-server -->

@@ -6,21 +6,18 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK 8
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v2
         with:
           java-version: 8
-      - uses: actions/cache@v2
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-maven-
+          distribution: 'zulu'
+          cache: maven
       - name: Patch Sustopia
         run: |
           git config --global user.email "kurumiisshidowife@gmail.com"
           git config --global user.name "KurumiFake"
           ./gradlew applyPatches
-          tar -cf a.tar Sustopia-*
+          tar -czf sus.tar.gz Sustopia-*
       - uses: actions/upload-artifact@v2
         with:
-          name: Sustopia-JDK8
-          path: a.tar
+          name: blak-smok-JDK8
+          path: sus.tar.gz

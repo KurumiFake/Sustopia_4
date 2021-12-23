@@ -1,6 +1,6 @@
 # Sustopia
 
-A sussy 1.16.5 [Airplane](https://airplane.gg) fork aimed at higher performance and security while still relatively stable.
+A sussy 1.16.5 [Airplane](https://airplane.gg) fork aimed at higher performance while still relatively stable.
 
 its just me, who knows nothing bout java, copypastin patches lel
 

@@ -1,0 +1,16 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: KurumiFake <kurumiisshidowife@gmail.com>
+Date: Sat, 25 Dec 2021 15:21:30 +0700
+Subject: [PATCH] Disable default 'icanhasbukkit' prefix
+
+
+diff --git a/src/main/resources/configurations/commands.yml b/src/main/resources/configurations/commands.yml
+index 0f45c397df38e8af1c8b5bb8ca24f54a88e5880b..2fa413957505f3c88d605da66a2182e8b22168ca 100644
+--- a/src/main/resources/configurations/commands.yml
++++ b/src/main/resources/configurations/commands.yml
+@@ -14,4 +14,4 @@ command-block-overrides: []
+ ignore-vanilla-permissions: false
+ aliases:
+     icanhasbukkit:
+-      - "version $1-"
++      - "[]"

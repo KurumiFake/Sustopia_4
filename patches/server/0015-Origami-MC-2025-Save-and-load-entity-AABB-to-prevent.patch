@@ -1,0 +1,42 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: KurumiFake <kurumiisshidowife@gmail.com>
+Date: Sat, 25 Dec 2021 15:02:59 +0700
+Subject: [PATCH] (Origami) MC-2025: Save and load entity AABB to prevent
+ wobble
+
+
+diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
+index 57f788f4823f08f0e8ab6f2d6d2fb03ecbb8b22e..286f97819d92b0f4177cf821ca2e9dcee63762fd 100644
+--- a/src/main/java/net/minecraft/world/entity/Entity.java
++++ b/src/main/java/net/minecraft/world/entity/Entity.java
+@@ -2050,6 +2050,12 @@ public abstract class Entity implements INamableTileEntity, ICommandListener, ne
+             if (fromNetherPortal) {
+                 nbttagcompound.setBoolean("Paper.FromNetherPortal", true);
+             }
++            // Paper start - MC-2025 fix - Save entity AABB and load it, floating point issues recalculating AABB can result in wobble
++            AxisAlignedBB boundingBox = this.getBoundingBox();
++            nbttagcompound.set("Paper.AAAB", this.createList(
++                    boundingBox.minX, boundingBox.minY, boundingBox.minZ,
++                    boundingBox.maxX, boundingBox.maxY, boundingBox.maxZ
++            ));
+             // Paper end
+             return nbttagcompound;
+         } catch (Throwable throwable) {
+@@ -2129,6 +2135,17 @@ public abstract class Entity implements INamableTileEntity, ICommandListener, ne
+                 throw new IllegalStateException("Entity has invalid position");
+             }
+ 
++            // Paper start - MC-2025 fix - Save entity AABB and load it, floating point issues recalculating AABB can result in wobble
++            // Placement is important, always after the setPosition call above
++            if (nbttagcompound.hasKey("Paper.AABB")) {
++                NBTTagList savedBB = nbttagcompound.getList("Paper.AABB", 6);
++                this.setBoundingBox(new AxisAlignedBB(
++                        savedBB.getDoubleAt(0), savedBB.getDoubleAt(1), savedBB.getDoubleAt(2),
++                        savedBB.getDoubleAt(3), savedBB.getDoubleAt(4), savedBB.getDoubleAt(5)
++                ));
++            }
++            // Paper end
++
+             // CraftBukkit start
+             if (this instanceof EntityLiving) {
+                 EntityLiving entity = (EntityLiving) this;

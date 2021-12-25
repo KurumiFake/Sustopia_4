@@ -1,11 +1,11 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: KurumiFake <kurumiisshidowife@gmail.com>
-Date: Sat, 25 Dec 2021 14:52:33 +0700
+Date: Sat, 25 Dec 2021 15:46:19 +0700
 Subject: [PATCH] (Patina) Nuke Bootstrap thread pool
 
 
 diff --git a/src/main/java/net/minecraft/SystemUtils.java b/src/main/java/net/minecraft/SystemUtils.java
-index 61b4c42e95994343772a91640b243b8e8224e09b..5af7bbb550cb9ff893e86078045af7f0cfcffabf 100644
+index 61b4c42e95994343772a91640b243b8e8224e09b..42da6cdaa8441675a9a67978cb7853e6c92934be 100644
 --- a/src/main/java/net/minecraft/SystemUtils.java
 +++ b/src/main/java/net/minecraft/SystemUtils.java
 @@ -55,7 +55,7 @@ import org.apache.logging.log4j.Logger;
@@ -13,11 +13,11 @@ index 61b4c42e95994343772a91640b243b8e8224e09b..5af7bbb550cb9ff893e86078045af7f0
  
      private static final AtomicInteger c = new AtomicInteger(1);
 -    private static final ExecutorService d = a("Bootstrap", -2); // Paper - add -2 priority
-+    //private static final ExecutorService d = a("Bootstrap", -2); // Paper - add -2 priority // Yatopia - nuke
++    //private static final ExecutorService d = a("Bootstrap", -2); // Paper - add -2 priority // Yatopia - nuek
      private static final ExecutorService e = a("Main", -1); // Paper - add -1 priority
      private static final ExecutorService f = n();
      public static LongSupplier a = System::nanoTime;
-@@ -118,10 +118,11 @@ public class SystemUtils {
+@@ -118,9 +118,9 @@ public class SystemUtils {
          return (ExecutorService) object;
      }
  
@@ -25,26 +25,24 @@ index 61b4c42e95994343772a91640b243b8e8224e09b..5af7bbb550cb9ff893e86078045af7f0
 +    /*public static Executor e() { // Yatopia - nuek
          return SystemUtils.d;
 -    }
-+    }*/ 
++    }*/
  
-+    public static Executor getMainExecutor() { return f(); } // Yatopia - OBFHELPER
      public static Executor f() {
          return SystemUtils.e;
-     }
 diff --git a/src/main/java/net/minecraft/util/datafix/DataConverterRegistry.java b/src/main/java/net/minecraft/util/datafix/DataConverterRegistry.java
-index 28e36ee76da533f8aa0a09cfc4f1fc0f744af715..07ee5c1940fc8b86dae9bb43ff5fc80bacc53348 100644
+index 28e36ee76da533f8aa0a09cfc4f1fc0f744af715..0e3999cffaf1768488a40a97dbae2c9d9b3a0d58 100644
 --- a/src/main/java/net/minecraft/util/datafix/DataConverterRegistry.java
 +++ b/src/main/java/net/minecraft/util/datafix/DataConverterRegistry.java
-@@ -199,14 +199,17 @@ public class DataConverterRegistry {
+@@ -199,14 +199,15 @@ public class DataConverterRegistry {
  
      private static final BiFunction<Integer, Schema, Schema> a = Schema::new;
      private static final BiFunction<Integer, Schema, Schema> b = DataConverterSchemaNamed::new;
 -    private static final DataFixer c = b();
+-
+-    private static DataFixer b() {
 +    // Yatopia start
 +    private static final DataFixer c;
 +    static {
- 
-     private static DataFixer b() {
          DataFixerBuilder datafixerbuilder = new DataFixerBuilder(SharedConstants.getGameVersion().getWorldVersion());
  
          a(datafixerbuilder);

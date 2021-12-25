@@ -5,7 +5,7 @@ Subject: [PATCH] Update dependencies
 
 
 diff --git a/pom.xml b/pom.xml
-index fcea49defd9ac7a03c33a7bac36388aaa3f53687..f1cc58e2bb1beb73b723015d0033ef1f023e03f2 100644
+index fcea49def..80b526a20 100644
 --- a/pom.xml
 +++ b/pom.xml
 @@ -30,7 +30,7 @@
@@ -80,6 +80,15 @@ index fcea49defd9ac7a03c33a7bac36388aaa3f53687..f1cc58e2bb1beb73b723015d0033ef1f
              <scope>runtime</scope>
              <exclusions>
                  <!-- included in minecraft-server -->
+@@ -190,7 +190,7 @@
+         <dependency>
+             <groupId>com.velocitypowered</groupId>
+             <artifactId>velocity-native</artifactId>
+-            <version>1.1.0-SNAPSHOT</version>
++            <version>1.1.10-SNAPSHOT</version>
+             <scope>compile</scope>
+         </dependency>
+         <!-- Airplane Config -->
 @@ -271,7 +271,7 @@
              <plugin>
                  <groupId>org.apache.maven.plugins</groupId>

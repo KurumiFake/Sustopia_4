@@ -1,0 +1,21 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: KurumiFake <kurumiisshidowife@gmail.com>
+Date: Sat, 25 Dec 2021 18:09:06 +0700
+Subject: [PATCH] (Akarin) Swaps the predicate order of collision
+
+
+diff --git a/src/main/java/net/minecraft/world/entity/Entity.java b/src/main/java/net/minecraft/world/entity/Entity.java
+index e3404323af2b884bacb9547341909cc6ae743f75..d1b0b4587fec8bf9f6ee2ffbc74404bd450e8b40 100644
+--- a/src/main/java/net/minecraft/world/entity/Entity.java
++++ b/src/main/java/net/minecraft/world/entity/Entity.java
+@@ -1777,8 +1777,9 @@ public abstract class Entity implements INamableTileEntity, ICommandListener, ne
+     public void pickup(EntityHuman entityhuman) {}
+ 
+     public void collide(Entity entity) {
++        if (entity.noclip || this.noclip) return; // Akarin - Test this earlier
+         if (!this.isSameVehicle(entity)) {
+-            if (!entity.noclip && !this.noclip) {
++            if (true || !entity.noclip && !this.noclip) { // Akarin - Moved up
+                 if (this.world.paperConfig.onlyPlayersCollide && !(entity instanceof EntityPlayer || this instanceof EntityPlayer)) return; // Paper
+                 double d0 = entity.locX() - this.locX();
+                 double d1 = entity.locZ() - this.locZ();

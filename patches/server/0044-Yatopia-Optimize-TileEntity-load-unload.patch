@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: KurumiFake <kurumiisshidowife@gmail.com>
+Date: Sun, 26 Dec 2021 22:59:08 +0700
+Subject: [PATCH] (Yatopia) Optimize TileEntity load/unload
+
+
+diff --git a/src/main/java/net/minecraft/world/level/World.java b/src/main/java/net/minecraft/world/level/World.java
+index 54cca722a281f2975afeab759283df0c7081ace2..40adb4c9e846deb5cac83662e4de21d49287e4b9 100644
+--- a/src/main/java/net/minecraft/world/level/World.java
++++ b/src/main/java/net/minecraft/world/level/World.java
+@@ -110,7 +110,7 @@ public abstract class World implements GeneratorAccess, AutoCloseable, BlockEnti
+     private static final EnumDirection[] a = EnumDirection.values();
+     //public final List<TileEntity> tileEntityList = Lists.newArrayList(); // Paper - remove unused list
+     public List<TileEntity> tileEntityListTick = me.jellysquid.mods.lithium.common.util.collections.HashedList.wrapper(Lists.newArrayList()); // Yatopia
+-    protected final List<TileEntity> tileEntityListPending = Lists.newArrayList();
++    protected final List<TileEntity> tileEntityListPending = me.jellysquid.mods.lithium.common.util.collections.HashedList.wrapper(Lists.newArrayList()); // Yatopia
+     protected final java.util.Set<TileEntity> tileEntityListUnload = java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>()); // Airplane - use set with faster contains
+     // Yatopia start - lithium: skip ticking block entities that are doing nothing
+     private MaskedTickingBlockEntityList<TileEntity> tileEntityListTick$lithium;

@@ -1,11 +1,11 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: KurumiFake <kurumiisshidowife@gmail.com>
-Date: Sun, 26 Dec 2021 20:37:36 +0700
+Date: Sun, 26 Dec 2021 20:55:50 +0700
 Subject: [PATCH] (Pufferfish) Optimize entity coordinate key
 
 
 diff --git a/src/main/java/net/minecraft/server/MCUtil.java b/src/main/java/net/minecraft/server/MCUtil.java
-index b7399d17dd64ca8b1f1fab405cb0ac914dc53b98..0132b04e41cc6b4f0fe2cef98b62c3a191c02588 100644
+index b7399d17dd64ca8b1f1fab405cb0ac914dc53b98..b4d9ac9da3febd598b39323e235ff9ce6c1b9cb6 100644
 --- a/src/main/java/net/minecraft/server/MCUtil.java
 +++ b/src/main/java/net/minecraft/server/MCUtil.java
 @@ -200,7 +200,7 @@ public final class MCUtil {
@@ -13,7 +13,7 @@ index b7399d17dd64ca8b1f1fab405cb0ac914dc53b98..0132b04e41cc6b4f0fe2cef98b62c3a1
  
      public static long getCoordinateKey(final Entity entity) {
 -        return ((long)(MCUtil.fastFloor(entity.locZ()) >> 4) << 32) | ((MCUtil.fastFloor(entity.locX()) >> 4) & 0xFFFFFFFFL);
-+        return ((long)(entity.blockPosition.locZ() >> 4) << 32) | ((entity.blockPosition.locX() >> 4) & 0xFFFFFFFFL); // Pufferfish - eliminate double->long cast in hotpath
++        return ((long)(entity.locBlock.locZ() >> 4) << 32) | ((entity.locBlock.locX() >> 4) & 0xFFFFFFFFL); // Pufferfish - eliminate double->long cast in hotpath
      }
  
      public static long getCoordinateKey(final ChunkCoordIntPair pair) {

@@ -737,7 +737,7 @@ index 93d02ccb87c17404c55884f52ae40c7b7ddfb103..cc9e6b9e5f550f9e633ea124f3dd8cbc
      public Timing tickTimer = MinecraftTimings.getTileEntityTimings(this); // Paper
      // CraftBukkit start - data containers
 diff --git a/src/main/java/net/minecraft/world/level/block/entity/TileEntityBeehive.java b/src/main/java/net/minecraft/world/level/block/entity/TileEntityBeehive.java
-index cacef4349a8dba02c2faee77e30f7c938f3d31af..a1651a7155f7fe2f01882a1eee4fbb5a067e1b38 100644
+index 80083a6666a28372946cf0e68ded44d075357f7d..98e7c73d21bd2e984f127da96be6b83857be46fb 100644
 --- a/src/main/java/net/minecraft/world/level/block/entity/TileEntityBeehive.java
 +++ b/src/main/java/net/minecraft/world/level/block/entity/TileEntityBeehive.java
 @@ -23,6 +23,9 @@ import net.minecraft.world.level.block.BlockBeehive;
@@ -785,10 +785,10 @@ index cacef4349a8dba02c2faee77e30f7c938f3d31af..a1651a7155f7fe2f01882a1eee4fbb5a
 +            this.checkSleepState();
 +        }
 +        // Yatopia end
-         if (this.bees.size() == 0) { return; } // Yatopia - TE optimizations
          if (!this.world.isClientSide) {
              this.y();
-@@ -329,6 +351,7 @@ public class TileEntityBeehive extends TileEntity implements ITickable {
+             BlockPosition blockposition = this.getPosition();
+@@ -328,6 +350,7 @@ public class TileEntityBeehive extends TileEntity implements ITickable {
      @Override
      public void load(IBlockData iblockdata, NBTTagCompound nbttagcompound) {
          super.load(iblockdata, nbttagcompound);

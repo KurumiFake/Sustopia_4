@@ -4,6 +4,19 @@ Date: Sun, 26 Dec 2021 16:05:57 +0700
 Subject: [PATCH] (Yatopia) Smarter statistics ticking
 
 
+diff --git a/src/main/java/me/kurumifake/sustopia/SustopiaConfig.java b/src/main/java/me/kurumifake/sustopia/SustopiaConfig.java
+index edc35a04cb194ff3839ac04e8eb4f938c0898b27..4d095f5b0d33e135ee0f7420576f44da0134b0d1 100644
+--- a/src/main/java/me/kurumifake/sustopia/SustopiaConfig.java
++++ b/src/main/java/me/kurumifake/sustopia/SustopiaConfig.java
+@@ -114,4 +114,8 @@ public final class SustopiaConfig {
+         }
+     }
+ 
++    public static int playerTimeStatisticsInterval = 1;
++    private static void intervals() {
++        playerTimeStatisticsInterval = Math.max(1, getInt("settings.intervals.player-time-statistics", 1));
++    }
+ }
 diff --git a/src/main/java/net/minecraft/world/entity/player/EntityHuman.java b/src/main/java/net/minecraft/world/entity/player/EntityHuman.java
 index 5f9e64df007ebc40f7bcb50be495b10e51d5b87a..3edba5282235f971a7be58b75f9b0b95d1e4c883 100644
 --- a/src/main/java/net/minecraft/world/entity/player/EntityHuman.java
@@ -22,30 +35,17 @@ index 5f9e64df007ebc40f7bcb50be495b10e51d5b87a..3edba5282235f971a7be58b75f9b0b95
 -                this.a(StatisticList.TIME_SINCE_DEATH);
 +                this.a(StatisticList.TIME_SINCE_DEATH, interval); // Yatopia
              }
-
+ 
              if (this.bx()) {
 -                this.a(StatisticList.SNEAK_TIME);
 +                this.a(StatisticList.SNEAK_TIME, interval); // Yatopia
              }
-
+ 
              if (!this.isSleeping()) {
 -                this.a(StatisticList.TIME_SINCE_REST);
 +                this.a(StatisticList.TIME_SINCE_REST, interval); // Yatopia
              }
 +            } // Yatopia
          }
-
-         int i = 29999999;
-diff --git a/src/main/java/me/kurumifake/sustopia/SustopiaConfig.java b/src/main/java/me/kurumifake/sustopia/SustopiaConfig.java
-index edc35a04cb194ff3839ac04e8eb4f938c0898b27..4d095f5b0d33e135ee0f7420576f44da0134b0d1 100644
---- a/src/main/java/me/kurumifake/sustopia/SustopiaConfig.java
-+++ b/src/main/java/me/kurumifake/sustopia/SustopiaConfig.java
-@@ -114,4 +114,8 @@ public final class SustopiaConfig {
-         }
-     }
  
-+    public static int playerTimeStatisticsInterval = 1;
-+    private static void intervals() {
-+        playerTimeStatisticsInterval = Math.max(1, getInt("settings.intervals.player-time-statistics", 1));
-+    }
- }
+         int i = 29999999;

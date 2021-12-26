@@ -1,0 +1,200 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: KurumiFake <kurumiisshidowife@gmail.com>
+Date: Sun, 26 Dec 2021 16:04:32 +0700
+Subject: [PATCH] Sustopia config files
+
+
+diff --git a/src/main/java/co/aikar/timings/TimingsExport.java b/src/main/java/co/aikar/timings/TimingsExport.java
+index 35810f42d7a0cd50a4cbe90e8d698fe57914c889..854660ef2210ccacfe953103fcb6dc691db2e631 100644
+--- a/src/main/java/co/aikar/timings/TimingsExport.java
++++ b/src/main/java/co/aikar/timings/TimingsExport.java
+@@ -231,6 +231,7 @@ public class TimingsExport extends Thread {
+             pair("bukkit", mapAsJSON(Bukkit.spigot().getBukkitConfig(), null)),
+             pair("paper", mapAsJSON(Bukkit.spigot().getPaperConfig(), null)), // Tuinity - add config to timings report
+             pair("tuinity", mapAsJSON(Bukkit.spigot().getTuinityConfig(), null)) // Tuinity - add config to timings report
++            , pair("sustopia", mapAsJSON(Bukkit.spigot().getSustopiaConfig(), null)) // Sustopia - Server config
+         ));
+ 
+         new TimingsExport(listeners, parent, history).start();
+diff --git a/src/main/java/me/kurumifake/sustopia/SustopiaConfig.java b/src/main/java/me/kurumifake/sustopia/SustopiaConfig.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..edc35a04cb194ff3839ac04e8eb4f938c0898b27
+--- /dev/null
++++ b/src/main/java/me/kurumifake/sustopia/SustopiaConfig.java
+@@ -0,0 +1,117 @@
++package me.kurumifake.sustopia;
++
++import org.bukkit.Bukkit;
++import org.bukkit.configuration.file.YamlConfiguration;
++
++import java.io.File;
++import java.lang.reflect.Method;
++import java.lang.reflect.Modifier;
++import java.util.logging.Level;
++
++public final class SustopiaConfig {
++
++    public static final String CONFIG_HEADER = "Configuration file for Sustopia.";
++    public static final int CURRENT_CONFIG_VERSION = 0;
++
++    private static final Object[] EMPTY = new Object[0];
++
++    private static File configFile;
++    private static YamlConfiguration config;
++    private static int configVersion;
++
++    public static void init(final File file) {
++        SustopiaConfig.configFile = file;
++        SustopiaConfig.config = new YamlConfiguration();
++        config.options().header(CONFIG_HEADER);
++        config.options().copyDefaults(true);
++
++        if (!file.exists()) {
++            try {
++                file.createNewFile();
++            } catch (final Exception ex) {
++                System.out.println("Failure to create Sustopia config");
++                ex.printStackTrace();
++            }
++        } else {
++            try {
++                config.load(file);
++            } catch (final Exception ex) {
++                System.out.println("Failure to load Sustopia config");
++                throw new RuntimeException(ex);
++            }
++        }
++
++        SustopiaConfig.load(SustopiaConfig.class, null);
++    }
++
++    public static void load(Class<?> clazz, Object instance) {
++        SustopiaConfig.configVersion = SustopiaConfig.getInt("config-version-please-do-not-modify-me", CURRENT_CONFIG_VERSION);
++
++        for (final Method method : clazz.getDeclaredMethods()) {
++            if (method.getReturnType() != void.class || method.getParameterCount() != 0 ||
++                    !Modifier.isPrivate(method.getModifiers()) || (instance == null && !Modifier.isStatic(method.getModifiers()))) {
++                continue;
++            }
++
++            try {
++                method.setAccessible(true);
++                method.invoke(instance, EMPTY);
++            } catch (final Exception ex) {
++                throw new RuntimeException(ex);
++            }
++        }
++
++        /* We re-save to add new options */
++        try {
++            config.save(SustopiaConfig.configFile);
++        } catch (final Exception ex) {
++            System.out.println("Unable to save Sustopia config");
++            ex.printStackTrace();
++        }
++    }
++
++    private static boolean getBoolean(final String path, final boolean dfl) {
++        SustopiaConfig.config.addDefault(path, Boolean.valueOf(dfl));
++        return SustopiaConfig.config.getBoolean(path, dfl);
++    }
++
++    private static int getInt(final String path, final int dfl) {
++        SustopiaConfig.config.addDefault(path, Integer.valueOf(dfl));
++        return SustopiaConfig.config.getInt(path, dfl);
++    }
++
++    private static double getDouble(final String path, final double dfl) {
++        SustopiaConfig.config.addDefault(path, Double.valueOf(dfl));
++        return SustopiaConfig.config.getDouble(path, dfl);
++    }
++
++    public static final class WorldConfig {
++
++        public final String worldName;
++
++        public WorldConfig(final String worldName) {
++            this.worldName = worldName;
++            this.init();
++        }
++
++        public void init() {
++            load(WorldConfig.class, this);
++        }
++
++        private boolean getBoolean(final String path, final boolean dfl) {
++            config.addDefault("worlds.default." + path, Boolean.valueOf(dfl));
++            return config.getBoolean("worlds." + worldName + "." + path, config.getBoolean("worlds.default." + path, dfl));
++        }
++
++        private int getInt(final String path, final int dfl) {
++            config.addDefault("worlds.default." + path, Integer.valueOf(dfl));
++            return config.getInt("worlds." + worldName + "." + path, config.getInt("worlds.default." + path, dfl));
++        }
++
++        private double getDouble(final String path, final double dfl) {
++            config.addDefault("worlds.default." + path, Double.valueOf(dfl));
++            return config.getDouble("worlds." + worldName + "." + path, config.getDouble("worlds.default." + path, dfl));
++        }
++    }
++
++}
+diff --git a/src/main/java/net/minecraft/world/level/World.java b/src/main/java/net/minecraft/world/level/World.java
+index be46144beed71e22110bba274d5b2ddf1f9d15c8..bc05fffd69c1216d18ed9be020e8322a700534f2 100644
+--- a/src/main/java/net/minecraft/world/level/World.java
++++ b/src/main/java/net/minecraft/world/level/World.java
+@@ -161,6 +161,7 @@ public abstract class World implements GeneratorAccess, AutoCloseable {
+ 
+     public final com.tuinity.tuinity.config.TuinityConfig.WorldConfig tuinityConfig; // Tuinity - Server Config
+     public final net.pl3x.purpur.PurpurWorldConfig purpurConfig; // Purpur
++    public final me.kurumifake.sustopia.SustopiaConfig.WorldConfig sustopiaConfig; // Sustopia - World Config
+ 
+     public final co.aikar.timings.WorldTimingsHandler timings; // Paper
+     public static BlockPosition lastPhysicsProblem; // Spigot
+@@ -262,6 +263,7 @@ public abstract class World implements GeneratorAccess, AutoCloseable {
+         this.chunkPacketBlockController = this.paperConfig.antiXray ? new ChunkPacketBlockControllerAntiXray(this, executor) : ChunkPacketBlockController.NO_OPERATION_INSTANCE; // Paper - Anti-Xray
+         this.tuinityConfig = new com.tuinity.tuinity.config.TuinityConfig.WorldConfig(((net.minecraft.world.level.storage.WorldDataServer)worlddatamutable).getName()); // Tuinity - Server Config
+         this.purpurConfig = new net.pl3x.purpur.PurpurWorldConfig((((net.minecraft.world.level.storage.WorldDataServer)worlddatamutable).getName())); // Purpur
++        this.sustopiaConfig = new me.kurumifake.sustopia.SustopiaConfig.WorldConfig(((net.minecraft.world.level.storage.WorldDataServer) worlddatamutable).getName()); // Sustopia - World Config
+         this.generator = gen;
+         this.world = new CraftWorld((WorldServer) this, gen, env);
+         this.ticksPerAnimalSpawns = this.getServer().getTicksPerAnimalSpawns(); // CraftBukkit
+diff --git a/src/main/java/org/bukkit/craftbukkit/CraftServer.java b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+index 08a98b224d01ddf4e3dd59c5e07c4d86d4fd13f9..814d972a5fe8c4f201ab9531c505480884821440 100644
+--- a/src/main/java/org/bukkit/craftbukkit/CraftServer.java
++++ b/src/main/java/org/bukkit/craftbukkit/CraftServer.java
+@@ -883,6 +883,7 @@ public final class CraftServer implements Server {
+         com.tuinity.tuinity.config.TuinityConfig.init((File) console.options.valueOf("tuinity-settings")); // Tuinity - Server Config
+         de.minebench.origami.OrigamiConfig.init((File) console.options.valueOf("origami-settings")); // Origami - Server Config
+         net.pl3x.purpur.PurpurConfig.init((File) console.options.valueOf("purpur-settings")); // Purpur
++        me.kurumifake.sustopia.SustopiaConfig.init((File) console.options.valueOf("sustopia-settings")); // Sustopia - Server Config
+         for (WorldServer world : console.getWorlds()) {
+             world.worldDataServer.setDifficulty(config.difficulty);
+             world.setSpawnFlags(config.spawnMonsters, config.spawnAnimals);
+@@ -920,6 +921,7 @@ public final class CraftServer implements Server {
+             world.tuinityConfig.init(); // Tuinity - Server Config
+             world.origamiConfig.init(); // Origami - World Config
+             world.purpurConfig.init(); // Purpur
++            world.sustopiaConfig.init(); // Sustopia - World Config
+         }
+ 
+         Plugin[] pluginClone = pluginManager.getPlugins().clone(); // Paper
+diff --git a/src/main/java/org/bukkit/craftbukkit/Main.java b/src/main/java/org/bukkit/craftbukkit/Main.java
+index 1474d11a05d6c9fadadc41517dd72cf4191a474d..fa2978e164cbc2fab3b578064053a2796303ce94 100644
+--- a/src/main/java/org/bukkit/craftbukkit/Main.java
++++ b/src/main/java/org/bukkit/craftbukkit/Main.java
+@@ -170,6 +170,14 @@ public class Main {
+                         .describedAs("Yml file");
+                 // Purpur end
+ 
++                // Sustopia Start - Server Config
++                acceptsAll(asList("sustopia", "sustopia-settings"), "File for sustopia settings")
++                        .withRequiredArg()
++                        .ofType(File.class)
++                        .defaultsTo(new File("sustopia.yml"))
++                        .describedAs("Yml file");
++                // Sustopia end - Server Config
++
+                 // Paper start
+                 acceptsAll(asList("server-name"), "Name of the server")
+                         .withRequiredArg()

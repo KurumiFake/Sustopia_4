@@ -1,0 +1,119 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: KurumiFake <kurumiisshidowife@gmail.com>
+Date: Sun, 26 Dec 2021 16:16:55 +0700
+Subject: [PATCH] (Yatopia) New NBT cache
+
+
+diff --git a/src/main/java/me/kurumifake/sustopia/cache/NBTCache.java b/src/main/java/me/kurumifake/sustopia/cache/NBTCache.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..375e7b2965768ccdd3a65126dc2a9fad9233a3ca
+--- /dev/null
++++ b/src/main/java/me/kurumifake/sustopia/cache/NBTCache.java
+@@ -0,0 +1,32 @@
++package me.kurumifake.sustopia.cache;
++
++import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenCustomHashMap;
++import net.minecraft.server.MinecraftServer;
++import net.minecraft.nbt.NBTTagCompound;
++
++import java.io.File;
++
++public class NBTCache extends Object2ObjectLinkedOpenCustomHashMap<File, NBTTagCompound> {
++
++    public NBTCache() {
++        super(100, 0.75F, new Strategy<File>() {
++            @Override
++            public int hashCode(File k) {
++                return k.hashCode();
++            }
++
++            @Override
++            public boolean equals(File k, File k1) {
++                return k.equals(k1);
++            }
++        });
++    }
++
++    @Override
++    public NBTTagCompound put(File k, NBTTagCompound v) {
++        if (this.size() > MinecraftServer.getServer().getPlayerCount()) {
++            this.removeLast();
++        }
++        return super.putAndMoveToFirst(k, v);
++    }
++}
+diff --git a/src/main/java/net/minecraft/world/level/storage/WorldNBTStorage.java b/src/main/java/net/minecraft/world/level/storage/WorldNBTStorage.java
+index d9c2c7a20953fc3bcdd07d70233ccf6e3748b14b..60a0a4c2f699eb249c2ab86d3e5f863668a05435 100644
+--- a/src/main/java/net/minecraft/world/level/storage/WorldNBTStorage.java
++++ b/src/main/java/net/minecraft/world/level/storage/WorldNBTStorage.java
+@@ -24,6 +24,11 @@ public class WorldNBTStorage {
+     private static final Logger LOGGER = LogManager.getLogger();
+     private final File playerDir;
+     protected final DataFixer a;
++    // Yatopia start - NBT Cache system
++    private final me.kurumifake.sustopia.cache.NBTCache dataCache = new me.kurumifake.sustopia.cache.NBTCache();
++    public final java.util.concurrent.ExecutorService executorService = java.util.concurrent.Executors.newSingleThreadExecutor(
++            new com.google.common.util.concurrent.ThreadFactoryBuilder().setDaemon(true).setPriority(Thread.NORM_PRIORITY - 1).build());
++    // Yatopia end
+ 
+     public WorldNBTStorage(Convertable.ConversionSession convertable_conversionsession, DataFixer datafixer) {
+         this.a = datafixer;
+@@ -37,11 +42,22 @@ public class WorldNBTStorage {
+             NBTTagCompound nbttagcompound = entityhuman.save(new NBTTagCompound());
+             File file = File.createTempFile(entityhuman.getUniqueIDString() + "-", ".dat", this.playerDir);
+ 
+-            NBTCompressedStreamTools.a(nbttagcompound, file);
++            // NBTCompressedStreamTools.a(nbttagcompound, file); // Yatopia
++            // Yatopia start - NBT Cache system
++            Runnable task = () -> { try { NBTCompressedStreamTools.a(nbttagcompound, file);
+             File file1 = new File(this.playerDir, entityhuman.getUniqueIDString() + ".dat");
+             File file2 = new File(this.playerDir, entityhuman.getUniqueIDString() + ".dat_old");
+ 
+             SystemUtils.a(file1, file, file2);
++            } catch (Exception exception) {
++                WorldNBTStorage.LOGGER.error("Failed to save player data for {}", entityhuman.getName(), exception); // Paper
++            }
++            };
++            synchronized (this.dataCache){
++                this.dataCache.put(file, nbttagcompound);
++            }
++            this.executorService.execute(task);
++            // Yatopia end
+         } catch (Exception exception) {
+             WorldNBTStorage.LOGGER.error("Failed to save player data for {}", entityhuman.getName(), exception); // Paper
+         }
+@@ -57,9 +73,18 @@ public class WorldNBTStorage {
+             // Spigot Start
+             boolean usingWrongFile = false;
+             boolean normalFile = file.exists() && file.isFile(); // Akarin - ensures normal file
+-            if ( org.bukkit.Bukkit.getOnlineMode() && !normalFile ) // Paper - Check online mode first // Akarin - ensures normal file
++            // if ( org.bukkit.Bukkit.getOnlineMode() && !normalFile ) // Paper - Check online mode first // Akarin - ensures normal file // Yatopia
++            // Yatopia start - NBT Cache system
++            NBTTagCompound playerData;
++            synchronized (this.dataCache){
++                playerData = this.dataCache.get(file);
++            }
++            if (playerData == null && org.bukkit.Bukkit.getOnlineMode() && !normalFile ) // Paper - Check online mode first // Akarin - ensures normal file
+             {
+                 file = new File( this.playerDir, java.util.UUID.nameUUIDFromBytes( ( "OfflinePlayer:" + entityhuman.getName() ).getBytes( "UTF-8" ) ).toString() + ".dat");
++                synchronized (this.dataCache){
++                    playerData = this.dataCache.get(file);
++                }
+                 if ( file.exists() )
+                 {
+                     usingWrongFile = true;
+@@ -68,9 +93,13 @@ public class WorldNBTStorage {
+             }
+             // Spigot End
+ 
+-            if (normalFile) { // Akarin - avoid double I/O operation
++            // if (normalFile) { // Akarin - avoid double I/O operation // Yatopia
++            if (playerData != null) {
++                nbttagcompound = playerData;
++            } else if (normalFile) { // Akarin - avoid double I/O operation
+                 nbttagcompound = NBTCompressedStreamTools.a(file);
+             }
++            // Yatopia end
+             // Spigot Start
+             if ( usingWrongFile )
+             {

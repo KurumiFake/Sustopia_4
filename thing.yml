@@ -1,0 +1,17 @@
+# based on patina's repo
+files-r-not-there: "a lot"
+portable:
+   yatopia:
+      - 0011
+      - 0013
+      - 0015
+yoinkable:
+   yatopia:
+      - 0004 mixin dir
+      - 0005 mixinbox
+      - 0007 hasdl
+      - 0009 dat
+      - 0012
+      - 0014
+      - 0018
+      - 0019

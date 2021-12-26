@@ -1084,26 +1084,6 @@ index 324b752c70e0bd7ea06caa98ec15cdd4e6ea40ae..ebc4385e648e6205b1b6893e818b302a
  
      }
  
-diff --git a/src/main/java/net/minecraft/world/level/block/entity/TileEntityEnchantTable.java b/src/main/java/net/minecraft/world/level/block/entity/TileEntityEnchantTable.java
-index 4b1cb089355b455c6210f2df1af797cc363997cf..0049a675557cbc05e361c12e9fb84a38a3a21160 100644
---- a/src/main/java/net/minecraft/world/level/block/entity/TileEntityEnchantTable.java
-+++ b/src/main/java/net/minecraft/world/level/block/entity/TileEntityEnchantTable.java
-@@ -9,6 +9,7 @@ import net.minecraft.util.MathHelper;
- import net.minecraft.world.INamableTileEntity;
- import net.minecraft.world.entity.player.EntityHuman;
- import net.minecraft.world.level.block.state.IBlockData;
-+import me.jellysquid.mods.lithium.common.world.blockentity.BlockEntitySleepTracker;
- 
- public class TileEntityEnchantTable extends TileEntity implements INamableTileEntity, ITickable {
- 
-@@ -51,6 +52,7 @@ public class TileEntityEnchantTable extends TileEntity implements INamableTileEn
-     @Override
-     public void tick() {
-         if (!org.yatopiamc.yatopia.server.YatopiaConfig.shouldTickEnchantingTables) { return; } // Yatopia - TE optimizations
-+        ((BlockEntitySleepTracker) this.world).setAwake(this, false); // Yatopia
-         this.j = this.i;
-         this.l = this.k;
-         EntityHuman entityhuman = this.world.a((double) this.position.getX() + 0.5D, (double) this.position.getY() + 0.5D, (double) this.position.getZ() + 0.5D, 3.0D, false);
 diff --git a/src/main/java/net/minecraft/world/level/block/entity/TileEntityFurnace.java b/src/main/java/net/minecraft/world/level/block/entity/TileEntityFurnace.java
 index 20193ba36c62fdd40ae905d1cea4bfd6d6aebcd7..b0f1c4f1660f3485303f0148bbc06dce4181e6b2 100644
 --- a/src/main/java/net/minecraft/world/level/block/entity/TileEntityFurnace.java

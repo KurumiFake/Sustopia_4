@@ -4,6 +4,9 @@ A sussy 1.16.5 [Airplane](https://airplane.gg) fork aimed at higher performance 
 
 its just me, who knows nothing bout java, copypastin patches lel
 
+## Downloading
+
+go to de actions tab and grab the newest one from Build main xd
 ## Building
 
 ```bash

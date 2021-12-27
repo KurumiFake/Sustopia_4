@@ -1085,7 +1085,7 @@ index 324b752c70e0bd7ea06caa98ec15cdd4e6ea40ae..ebc4385e648e6205b1b6893e818b302a
      }
  
 diff --git a/src/main/java/net/minecraft/world/level/block/entity/TileEntityFurnace.java b/src/main/java/net/minecraft/world/level/block/entity/TileEntityFurnace.java
-index 20193ba36c62fdd40ae905d1cea4bfd6d6aebcd7..b0f1c4f1660f3485303f0148bbc06dce4181e6b2 100644
+index 9ce19b89c16eb6edd3d5d5cc87a966a37f66895c..49aebd9025f3b73843da8204737701d95bcbfdea 100644
 --- a/src/main/java/net/minecraft/world/level/block/entity/TileEntityFurnace.java
 +++ b/src/main/java/net/minecraft/world/level/block/entity/TileEntityFurnace.java
 @@ -51,9 +51,11 @@ import org.bukkit.event.inventory.FurnaceBurnEvent;
@@ -1131,7 +1131,7 @@ index 20193ba36c62fdd40ae905d1cea4bfd6d6aebcd7..b0f1c4f1660f3485303f0148bbc06dce
          this.items = NonNullList.a(this.getSize(), ItemStack.b);
          ContainerUtil.b(nbttagcompound, this.items);
          this.burnTime = nbttagcompound.getShort("BurnTime");
-@@ -369,7 +388,12 @@ public abstract class TileEntityFurnace extends TileEntityContainer implements I
+@@ -366,7 +385,12 @@ public abstract class TileEntityFurnace extends TileEntityContainer implements I
          if (flag1) {
              this.update();
          }

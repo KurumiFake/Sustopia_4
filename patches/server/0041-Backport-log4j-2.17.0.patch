@@ -1,0 +1,740 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: KurumiFake <kurumiisshidowife@gmail.com>
+Date: Tue, 28 Dec 2021 00:27:29 +0000
+Subject: [PATCH] Backport log4j 2.17.0
+
+
+diff --git a/src/main/java/org/apache/logging/log4j/core/appender/mom/JmsAppender.java b/src/main/java/org/apache/logging/log4j/core/appender/mom/JmsAppender.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..0d0d44631abddf0c49c8029c76fe689198220d25
+--- /dev/null
++++ b/src/main/java/org/apache/logging/log4j/core/appender/mom/JmsAppender.java
+@@ -0,0 +1,269 @@
++/*
++ * Licensed to the Apache Software Foundation (ASF) under one or more
++ * contributor license agreements. See the NOTICE file distributed with
++ * this work for additional information regarding copyright ownership.
++ * The ASF licenses this file to You under the Apache license, Version 2.0
++ * (the "License"); you may not use this file except in compliance with
++ * the License. You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the license for the specific language governing permissions and
++ * limitations under the license.
++ */
++
++package org.apache.logging.log4j.core.appender.mom;
++
++import java.io.Serializable;
++import java.util.Properties;
++import java.util.concurrent.TimeUnit;
++
++import javax.jms.JMSException;
++
++import org.apache.logging.log4j.core.Appender;
++import org.apache.logging.log4j.core.Filter;
++import org.apache.logging.log4j.core.Layout;
++import org.apache.logging.log4j.core.LogEvent;
++import org.apache.logging.log4j.core.appender.AbstractAppender;
++import org.apache.logging.log4j.core.appender.AbstractManager;
++import org.apache.logging.log4j.core.appender.mom.JmsManager.JmsManagerConfiguration;
++import org.apache.logging.log4j.core.config.Node;
++import org.apache.logging.log4j.core.config.Property;
++import org.apache.logging.log4j.core.config.plugins.Plugin;
++import org.apache.logging.log4j.core.config.plugins.PluginAliases;
++import org.apache.logging.log4j.core.config.plugins.PluginBuilderAttribute;
++import org.apache.logging.log4j.core.config.plugins.PluginBuilderFactory;
++import org.apache.logging.log4j.core.config.plugins.validation.constraints.Required;
++import org.apache.logging.log4j.core.net.JndiManager;
++
++/**
++ * Generic JMS Appender plugin for both queues and topics. This Appender replaces the previous split ones. However,
++ * configurations set up for the 2.0 version of the JMS appenders will still work.
++ */
++@Plugin(name = "JMS", category = Node.CATEGORY, elementType = Appender.ELEMENT_TYPE, printObject = true)
++@PluginAliases({ "JMSQueue", "JMSTopic" })
++public class JmsAppender extends AbstractAppender {
++
++    public static class Builder<B extends Builder<B>> extends AbstractAppender.Builder<B>
++            implements org.apache.logging.log4j.core.util.Builder<JmsAppender> {
++
++        public static final int DEFAULT_RECONNECT_INTERVAL_MILLIS = 5000;
++
++        @PluginBuilderAttribute
++        private String factoryName;
++
++        @PluginBuilderAttribute
++        private String providerUrl;
++
++        @PluginBuilderAttribute
++        private String urlPkgPrefixes;
++
++        @PluginBuilderAttribute
++        private String securityPrincipalName;
++
++        @PluginBuilderAttribute(sensitive = true)
++        private String securityCredentials;
++
++        @PluginBuilderAttribute
++        @Required(message = "A javax.jms.ConnectionFactory JNDI name must be specified")
++        private String factoryBindingName;
++
++        @PluginBuilderAttribute
++        @PluginAliases({ "queueBindingName", "topicBindingName" })
++        @Required(message = "A javax.jms.Destination JNDI name must be specified")
++        private String destinationBindingName;
++
++        @PluginBuilderAttribute
++        private String userName;
++
++        @PluginBuilderAttribute(sensitive = true)
++        private char[] password;
++
++        @PluginBuilderAttribute
++        private long reconnectIntervalMillis = DEFAULT_RECONNECT_INTERVAL_MILLIS;
++
++        @PluginBuilderAttribute
++        private boolean immediateFail;
++
++        // Programmatic access only for now.
++        private JmsManager jmsManager;
++
++        private Builder() {
++        }
++
++        @SuppressWarnings("resource") // actualJmsManager and jndiManager are managed by the JmsAppender
++        @Override
++        public JmsAppender build() {
++            JmsManager actualJmsManager = jmsManager;
++            JmsManagerConfiguration configuration = null;
++            if (actualJmsManager == null) {
++                final Properties jndiProperties = JndiManager.createProperties(factoryName, providerUrl, urlPkgPrefixes,
++                        securityPrincipalName, securityCredentials, null);
++                configuration = new JmsManagerConfiguration(jndiProperties, factoryBindingName, destinationBindingName,
++                        userName, password, false, reconnectIntervalMillis);
++                actualJmsManager = AbstractManager.getManager(getName(), JmsManager.FACTORY, configuration);
++            }
++            if (actualJmsManager == null) {
++                // JmsManagerFactory has already logged an ERROR.
++                return null;
++            }
++            final Layout<? extends Serializable> layout = getLayout();
++            if (layout == null) {
++                LOGGER.error("No layout provided for JmsAppender");
++                return null;
++            }
++            try {
++                return new JmsAppender(getName(), getFilter(), layout, isIgnoreExceptions(), getPropertyArray(),
++                        actualJmsManager);
++            } catch (final JMSException e) {
++                // Never happens since the ctor no longer actually throws a JMSException.
++                throw new IllegalStateException(e);
++            }
++        }
++
++        public Builder setDestinationBindingName(final String destinationBindingName) {
++            this.destinationBindingName = destinationBindingName;
++            return this;
++        }
++
++        public Builder setFactoryBindingName(final String factoryBindingName) {
++            this.factoryBindingName = factoryBindingName;
++            return this;
++        }
++
++        public Builder setFactoryName(final String factoryName) {
++            this.factoryName = factoryName;
++            return this;
++        }
++
++        public Builder setImmediateFail(final boolean immediateFail) {
++            this.immediateFail = immediateFail;
++            return this;
++        }
++
++        public Builder setJmsManager(final JmsManager jmsManager) {
++            this.jmsManager = jmsManager;
++            return this;
++        }
++
++        public Builder setPassword(final char[] password) {
++            this.password = password;
++            return this;
++        }
++
++        /**
++         * @deprecated Use setPassword(char[])
++         */
++        @Deprecated
++        public Builder setPassword(final String password) {
++            this.password = password == null ? null : password.toCharArray();
++            return this;
++        }
++
++        public Builder setProviderUrl(final String providerUrl) {
++            this.providerUrl = providerUrl;
++            return this;
++        }
++
++        public Builder setReconnectIntervalMillis(final long reconnectIntervalMillis) {
++            this.reconnectIntervalMillis = reconnectIntervalMillis;
++            return this;
++        }
++
++        public Builder setSecurityCredentials(final String securityCredentials) {
++            this.securityCredentials = securityCredentials;
++            return this;
++        }
++
++        public Builder setSecurityPrincipalName(final String securityPrincipalName) {
++            this.securityPrincipalName = securityPrincipalName;
++            return this;
++        }
++
++        public Builder setUrlPkgPrefixes(final String urlPkgPrefixes) {
++            this.urlPkgPrefixes = urlPkgPrefixes;
++            return this;
++        }
++
++        /**
++         * @deprecated Use {@link #setUserName(String)}.
++         */
++        @Deprecated
++        public Builder setUsername(final String username) {
++            this.userName = username;
++            return this;
++        }
++
++        public Builder setUserName(final String userName) {
++            this.userName = userName;
++            return this;
++        }
++
++        /**
++         * Does not include the password.
++         */
++        @Override
++        public String toString() {
++            return "Builder [name=" + getName() + ", factoryName=" + factoryName + ", providerUrl=" + providerUrl
++                    + ", urlPkgPrefixes=" + urlPkgPrefixes + ", securityPrincipalName=" + securityPrincipalName
++                    + ", securityCredentials=" + securityCredentials + ", factoryBindingName=" + factoryBindingName
++                    + ", destinationBindingName=" + destinationBindingName + ", username=" + userName + ", layout="
++                    + getLayout() + ", filter=" + getFilter() + ", ignoreExceptions=" + isIgnoreExceptions()
++                    + ", jmsManager=" + jmsManager + "]";
++        }
++
++    }
++
++    @PluginBuilderFactory
++    public static Builder newBuilder() {
++        return new Builder();
++    }
++
++    private volatile JmsManager manager;
++
++    /**
++     * Constructs a new instance.
++     *
++     * @throws JMSException not thrown as of 2.9 but retained in the signature for compatibility, will be removed in 3.0
++     */
++    protected JmsAppender(final String name, final Filter filter, final Layout<? extends Serializable> layout,
++            final boolean ignoreExceptions, final Property[] properties, final JmsManager manager) throws JMSException {
++        super(name, filter, layout, ignoreExceptions, properties);
++        this.manager = manager;
++    }
++
++    /**
++     * Constructs a new instance.
++     *
++     * @throws JMSException not thrown as of 2.9 but retained in the signature for compatibility, will be removed in 3.0
++     * @deprecated Use {@link #JmsAppender(String, Filter, Layout, boolean, Property[], JmsManager)}.
++     */
++    @Deprecated
++    protected JmsAppender(final String name, final Filter filter, final Layout<? extends Serializable> layout,
++            final boolean ignoreExceptions, final JmsManager manager) throws JMSException {
++        super(name, filter, layout, ignoreExceptions, Property.EMPTY_ARRAY);
++        this.manager = manager;
++    }
++
++    @Override
++    public void append(final LogEvent event) {
++        this.manager.send(event, toSerializable(event));
++    }
++
++    public JmsManager getManager() {
++        return manager;
++    }
++
++    @Override
++    public boolean stop(final long timeout, final TimeUnit timeUnit) {
++        setStopping();
++        boolean stopped = super.stop(timeout, timeUnit, false);
++        stopped &= this.manager.stop(timeout, timeUnit);
++        setStopped();
++        return stopped;
++    }
++
++}
+diff --git a/src/main/java/org/apache/logging/log4j/core/net/JndiManager.java b/src/main/java/org/apache/logging/log4j/core/net/JndiManager.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..d9d0c0b662485a8cc14e2ce6641944ac22c0f878
+--- /dev/null
++++ b/src/main/java/org/apache/logging/log4j/core/net/JndiManager.java
+@@ -0,0 +1,233 @@
++/*
++ * Licensed to the Apache Software Foundation (ASF) under one or more
++ * contributor license agreements. See the NOTICE file distributed with
++ * this work for additional information regarding copyright ownership.
++ * The ASF licenses this file to You under the Apache license, Version 2.0
++ * (the "License"); you may not use this file except in compliance with
++ * the License. You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the license for the specific language governing permissions and
++ * limitations under the license.
++ */
++
++package org.apache.logging.log4j.core.net;
++
++import java.net.URI;
++import java.net.URISyntaxException;
++import java.util.Properties;
++import java.util.concurrent.TimeUnit;
++
++import javax.naming.Context;
++import javax.naming.InitialContext;
++import javax.naming.NamingException;
++
++import org.apache.logging.log4j.core.appender.AbstractManager;
++import org.apache.logging.log4j.core.appender.ManagerFactory;
++import org.apache.logging.log4j.core.util.JndiCloser;
++import org.apache.logging.log4j.util.PropertiesUtil;
++
++/**
++ * Manages a JNDI {@link javax.naming.directory.DirContext}.
++ *
++ * @since 2.1
++ */
++public class JndiManager extends AbstractManager {
++
++    private static final JndiManagerFactory FACTORY = new JndiManagerFactory();
++    private static final String PREFIX = "log4j2.enableJndi";
++    private static final String JAVA_SCHEME = "java";
++
++    private final InitialContext context;
++
++    private static boolean isJndiEnabled(final String subKey) {
++        return PropertiesUtil.getProperties().getBooleanProperty(PREFIX + subKey, false);
++    }
++
++    public static boolean isJndiEnabled() {
++        return isJndiContextSelectorEnabled() || isJndiJmsEnabled() || isJndiLookupEnabled();
++    }
++
++    public static boolean isJndiContextSelectorEnabled() {
++        return isJndiEnabled("ContextSelector");
++    }
++
++    public static boolean isJndiJmsEnabled() {
++        return isJndiEnabled("Jms");
++    }
++
++    public static boolean isJndiLookupEnabled() {
++        return isJndiEnabled("Lookup");
++    }
++
++    private JndiManager(final String name, final InitialContext context) {
++        super(null, name);
++        this.context = context;
++    }
++
++    /**
++     * Gets the default JndiManager using the default {@link javax.naming.InitialContext}.
++     *
++     * @return the default JndiManager
++     */
++    public static JndiManager getDefaultManager() {
++        return getManager(JndiManager.class.getName(), FACTORY, null);
++    }
++
++    /**
++     * Gets a named JndiManager using the default {@link javax.naming.InitialContext}.
++     *
++     * @param name the name of the JndiManager instance to create or use if available
++     * @return a default JndiManager
++     */
++    public static JndiManager getDefaultManager(final String name) {
++        return getManager(name, FACTORY, null);
++    }
++
++    /**
++     * Gets a JndiManager with the provided configuration information.
++     *
++     * @param initialContextFactoryName Fully qualified class name of an implementation of
++     *                                  {@link javax.naming.spi.InitialContextFactory}.
++     * @param providerURL               The provider URL to use for the JNDI connection (specific to the above factory).
++     * @param urlPkgPrefixes            A colon-separated list of package prefixes for the class name of the factory
++     *                                  class that will create a URL context factory
++     * @param securityPrincipal         The name of the identity of the Principal.
++     * @param securityCredentials       The security credentials of the Principal.
++     * @param additionalProperties      Any additional JNDI environment properties to set or {@code null} for none.
++     * @return the JndiManager for the provided parameters.
++     */
++    public static JndiManager getJndiManager(final String initialContextFactoryName,
++            final String providerURL,
++            final String urlPkgPrefixes,
++            final String securityPrincipal,
++            final String securityCredentials,
++            final Properties additionalProperties) {
++        final Properties properties = createProperties(initialContextFactoryName, providerURL, urlPkgPrefixes,
++                securityPrincipal, securityCredentials, additionalProperties);
++        return getManager(createManagerName(), FACTORY, properties);
++    }
++
++    /**
++     * Gets a JndiManager with the provided configuration information.
++     *
++     * @param properties JNDI properties, usually created by calling {@link #createProperties(String, String, String, String, String, Properties)}.
++     * @return the JndiManager for the provided parameters.
++     * @see #createProperties(String, String, String, String, String, Properties)
++     * @since 2.9
++     */
++    public static JndiManager getJndiManager(final Properties properties) {
++        return getManager(createManagerName(), FACTORY, properties);
++    }
++
++    private static String createManagerName() {
++        return JndiManager.class.getName() + '@' + JndiManager.class.hashCode();
++    }
++
++    /**
++     * Creates JNDI Properties with the provided configuration information.
++     *
++     * @param initialContextFactoryName
++     *            Fully qualified class name of an implementation of {@link javax.naming.spi.InitialContextFactory}.
++     * @param providerURL
++     *            The provider URL to use for the JNDI connection (specific to the above factory).
++     * @param urlPkgPrefixes
++     *            A colon-separated list of package prefixes for the class name of the factory class that will create a
++     *            URL context factory
++     * @param securityPrincipal
++     *            The name of the identity of the Principal.
++     * @param securityCredentials
++     *            The security credentials of the Principal.
++     * @param additionalProperties
++     *            Any additional JNDI environment properties to set or {@code null} for none.
++     * @return the Properties for the provided parameters.
++     * @since 2.9
++     */
++    public static Properties createProperties(final String initialContextFactoryName, final String providerURL,
++            final String urlPkgPrefixes, final String securityPrincipal, final String securityCredentials,
++            final Properties additionalProperties) {
++        if (initialContextFactoryName == null) {
++            return null;
++        }
++        final Properties properties = new Properties();
++        properties.setProperty(Context.INITIAL_CONTEXT_FACTORY, initialContextFactoryName);
++        if (providerURL != null) {
++            properties.setProperty(Context.PROVIDER_URL, providerURL);
++        } else {
++            LOGGER.warn("The JNDI InitialContextFactory class name [{}] was provided, but there was no associated "
++                    + "provider URL. This is likely to cause problems.", initialContextFactoryName);
++        }
++        if (urlPkgPrefixes != null) {
++            properties.setProperty(Context.URL_PKG_PREFIXES, urlPkgPrefixes);
++        }
++        if (securityPrincipal != null) {
++            properties.setProperty(Context.SECURITY_PRINCIPAL, securityPrincipal);
++            if (securityCredentials != null) {
++                properties.setProperty(Context.SECURITY_CREDENTIALS, securityCredentials);
++            } else {
++                LOGGER.warn("A security principal [{}] was provided, but with no corresponding security credentials.",
++                        securityPrincipal);
++            }
++        }
++        if (additionalProperties != null) {
++            properties.putAll(additionalProperties);
++        }
++        return properties;
++    }
++
++    @Override
++    protected boolean releaseSub(final long timeout, final TimeUnit timeUnit) {
++        return JndiCloser.closeSilently(this.context);
++    }
++
++    /**
++     * Looks up a named object through this JNDI context.
++     *
++     * @param name name of the object to look up.
++     * @param <T>  the type of the object.
++     * @return the named object if it could be located.
++     * @throws  NamingException if a naming exception is encountered
++     */
++    @SuppressWarnings("unchecked")
++    public <T> T lookup(final String name) throws NamingException {
++        if (context == null) {
++            return null;
++        }
++        try {
++            URI uri = new URI(name);
++            if (uri.getScheme() == null || uri.getScheme().equals(JAVA_SCHEME)) {
++                return (T) this.context.lookup(name);
++            }
++            LOGGER.warn("Unsupported JNDI URI - {}", name);
++        } catch (URISyntaxException ex) {
++            LOGGER.warn("Invalid  JNDI URI - {}", name);
++        }
++        return null;
++    }
++
++    private static class JndiManagerFactory implements ManagerFactory<JndiManager, Properties> {
++
++        @Override
++        public JndiManager createManager(final String name, final Properties data) {
++            if (!isJndiEnabled()) {
++                throw new IllegalStateException(String.format("JNDI must be enabled by setting one of the %s* properties to true", PREFIX));
++            }
++            try {
++                return new JndiManager(name, new InitialContext(data));
++            } catch (final NamingException e) {
++                LOGGER.error("Error creating JNDI InitialContext for '{}'.", name, e);
++                return null;
++            }
++        }
++    }
++
++    @Override
++    public String toString() {
++        return "JndiManager [context=" + context + ", count=" + count + "]";
++    }
++
++}
+diff --git a/src/main/java/org/apache/logging/log4j/core/util/NetUtils.java b/src/main/java/org/apache/logging/log4j/core/util/NetUtils.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..661f74f90b1a731f5be76eca6b61b6cec33e2439
+--- /dev/null
++++ b/src/main/java/org/apache/logging/log4j/core/util/NetUtils.java
+@@ -0,0 +1,214 @@
++/*
++ * Licensed to the Apache Software Foundation (ASF) under one or more
++ * contributor license agreements. See the NOTICE file distributed with
++ * this work for additional information regarding copyright ownership.
++ * The ASF licenses this file to You under the Apache license, Version 2.0
++ * (the "License"); you may not use this file except in compliance with
++ * the License. You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the license for the specific language governing permissions and
++ * limitations under the license.
++ */
++package org.apache.logging.log4j.core.util;
++
++import java.io.File;
++import java.net.Inet4Address;
++import java.net.Inet6Address;
++import java.net.InetAddress;
++import java.net.MalformedURLException;
++import java.net.NetworkInterface;
++import java.net.SocketException;
++import java.net.URI;
++import java.net.URISyntaxException;
++import java.net.URL;
++import java.net.UnknownHostException;
++import java.util.ArrayList;
++import java.util.Arrays;
++import java.util.Enumeration;
++import java.util.List;
++
++import org.apache.logging.log4j.Logger;
++import org.apache.logging.log4j.status.StatusLogger;
++import org.apache.logging.log4j.util.Strings;
++
++/**
++ * Networking-related convenience methods.
++ */
++public final class NetUtils {
++
++    private static final Logger LOGGER = StatusLogger.getLogger();
++    private static final String UNKNOWN_LOCALHOST = "UNKNOWN_LOCALHOST";
++
++    private NetUtils() {
++        // empty
++    }
++
++    /**
++     * This method gets the network name of the machine we are running on. Returns "UNKNOWN_LOCALHOST" in the unlikely
++     * case where the host name cannot be found.
++     *
++     * @return String the name of the local host
++     */
++    public static String getLocalHostname() {
++        try {
++            final InetAddress addr = InetAddress.getLocalHost();
++            return addr == null ? UNKNOWN_LOCALHOST : addr.getHostName();
++        } catch (final UnknownHostException uhe) {
++            try {
++                final Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
++                if (interfaces != null) {
++                    while (interfaces.hasMoreElements()) {
++                        final NetworkInterface nic = interfaces.nextElement();
++                        final Enumeration<InetAddress> addresses = nic.getInetAddresses();
++                        while (addresses.hasMoreElements()) {
++                            final InetAddress address = addresses.nextElement();
++                            if (!address.isLoopbackAddress()) {
++                                final String hostname = address.getHostName();
++                                if (hostname != null) {
++                                    return hostname;
++                                }
++                            }
++                        }
++                    }
++                }
++            } catch (final SocketException se) {
++                // ignore and log below.
++            }
++            LOGGER.error("Could not determine local host name", uhe);
++            return UNKNOWN_LOCALHOST;
++        }
++    }
++
++    /**
++     * Returns all the local host names and ip addresses.
++     * @return The local host names and ip addresses.
++     */
++    public static List<String> getLocalIps() {
++        List<String> localIps = new ArrayList<>();
++        localIps.add("localhost");
++        localIps.add("127.0.0.1");
++        try {
++            final InetAddress addr = Inet4Address.getLocalHost();
++            setHostName(addr, localIps);
++        } catch (final UnknownHostException ex) {
++            // Ignore this.
++        }
++        try {
++            final Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
++            if (interfaces != null) {
++                while (interfaces.hasMoreElements()) {
++                    final NetworkInterface nic = interfaces.nextElement();
++                    final Enumeration<InetAddress> addresses = nic.getInetAddresses();
++                    while (addresses.hasMoreElements()) {
++                        final InetAddress address = addresses.nextElement();
++                        setHostName(address, localIps);
++                    }
++                }
++            }
++        } catch (final SocketException se) {
++            // ignore.
++        }
++        return localIps;
++    }
++
++    private static void setHostName(InetAddress address, List<String> localIps) {
++        String[] parts = address.toString().split("\\s*/\\s*");
++        if (parts.length > 0) {
++            for (String part : parts) {
++                if (Strings.isNotBlank(part) && !localIps.contains(part)) {
++                    localIps.add(part);
++                }
++            }
++        }
++    }
++
++    /**
++     *  Returns the local network interface's MAC address if possible. The local network interface is defined here as
++     *  the {@link java.net.NetworkInterface} that is both up and not a loopback interface.
++     *
++     * @return the MAC address of the local network interface or {@code null} if no MAC address could be determined.
++     */
++    public static byte[] getMacAddress() {
++        byte[] mac = null;
++        try {
++            final InetAddress localHost = InetAddress.getLocalHost();
++            try {
++                final NetworkInterface localInterface = NetworkInterface.getByInetAddress(localHost);
++                if (isUpAndNotLoopback(localInterface)) {
++                    mac = localInterface.getHardwareAddress();
++                }
++                if (mac == null) {
++                    final Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
++                    if (networkInterfaces != null) {
++                        while (networkInterfaces.hasMoreElements() && mac == null) {
++                            final NetworkInterface nic = networkInterfaces.nextElement();
++                            if (isUpAndNotLoopback(nic)) {
++                                mac = nic.getHardwareAddress();
++                            }
++                        }
++                    }
++                }
++            } catch (final SocketException e) {
++                LOGGER.catching(e);
++            }
++            if (ArrayUtils.isEmpty(mac) && localHost != null) {
++                // Emulate a MAC address with an IP v4 or v6
++                final byte[] address = localHost.getAddress();
++                // Take only 6 bytes if the address is an IPv6 otherwise will pad with two zero bytes
++                mac = Arrays.copyOf(address, 6);
++            }
++        } catch (final UnknownHostException ignored) {
++            // ignored
++        }
++        return mac;
++    }
++
++    /**
++     * Returns the mac address, if it is available, as a string with each byte separated by a ":" character.
++     * @return the mac address String or null.
++     */
++    public static String getMacAddressString() {
++        final byte[] macAddr = getMacAddress();
++        if (!ArrayUtils.isEmpty(macAddr)) {
++            StringBuilder sb = new StringBuilder(String.format("%02x", macAddr[0]));
++            for (int i = 1; i < macAddr.length; ++i) {
++                sb.append(":").append(String.format("%02x", macAddr[i]));
++            }
++            return sb.toString();
++
++        }
++        return null;
++    }
++
++    private static boolean isUpAndNotLoopback(final NetworkInterface ni) throws SocketException {
++        return ni != null && !ni.isLoopback() && ni.isUp();
++    }
++
++    /**
++     * Converts a URI string or file path to a URI object.
++     *
++     * @param path the URI string or path
++     * @return the URI object
++     */
++    public static URI toURI(final String path) {
++        try {
++            // Resolves absolute URI
++            return new URI(path);
++        } catch (final URISyntaxException e) {
++            // A file path or a Apache Commons VFS URL might contain blanks.
++            // A file path may start with a driver letter
++            try {
++                final URL url = new URL(path);
++                return new URI(url.getProtocol(), url.getHost(), url.getPath(), null);
++            } catch (MalformedURLException | URISyntaxException nestedEx) {
++                return new File(path).toURI();
++            }
++        }
++    }
++
++}

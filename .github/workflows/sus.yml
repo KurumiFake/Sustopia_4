@@ -1,4 +1,4 @@
-name: blak smok
+name: blak smok 2
 on: [push]
 jobs:
   build:
@@ -10,13 +10,16 @@ jobs:
         with:
           java-version: 8
           distribution: 'zulu'
-      - name: Patch Sustopia
+      - name: n0mm
         run: |
           git config --global user.email "kurumiisshidowife@gmail.com"
           git config --global user.name "KurumiFake"
+          ./gradlew initGitSubmodules
+          cd Airplane
           ./gradlew applyPatches
-          tar -czf sus.tar.gz Sustopia-*
+          cd ..
+          tar -czf airsus.tar.gz Airplane
       - uses: actions/upload-artifact@v2
         with:
-          name: blak-smok-JDK8
-          path: sus.tar.gz
+          name: air
+          path: airsus.tar.gz

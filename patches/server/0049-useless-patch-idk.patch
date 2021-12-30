@@ -1,0 +1,82 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: KurumiFake <kurumiisshidowife@gmail.com>
+Date: Thu, 30 Dec 2021 17:23:14 +0000
+Subject: [PATCH] useless patch idk
+
+
+diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
+index 0040a8d4acbc92b4af865c94e337be682d5baf1c..68d65336c4d4ac72b457dd611832d70c18f07033 100644
+--- a/src/main/java/net/minecraft/server/MinecraftServer.java
++++ b/src/main/java/net/minecraft/server/MinecraftServer.java
+@@ -748,7 +748,7 @@ public abstract class MinecraftServer extends IAsyncTaskHandlerReentrant<TickTas
+         // CraftBukkit end
+         if (worldserver.getWorld().getKeepSpawnInMemory()) { // Paper
+ 
+-        MinecraftServer.LOGGER.info("Preparing start region for dimension {}", worldserver.getDimensionKey().a());
++        MinecraftServer.LOGGER.info("Preparing start region for {}", worldserver.getDimensionKey().a());
+         BlockPosition blockposition = worldserver.getSpawn();
+ 
+         worldloadlistener.a(new ChunkCoordIntPair(blockposition));
+@@ -839,7 +839,7 @@ public abstract class MinecraftServer extends IAsyncTaskHandlerReentrant<TickTas
+             WorldServer worldserver = (WorldServer) iterator.next();
+ 
+             if (!flag) {
+-                MinecraftServer.LOGGER.info("Saving chunks for level '{}'/{}", worldserver, worldserver.getDimensionKey().a());
++                MinecraftServer.LOGGER.info("Saving chunks for '{}'/{}", worldserver, worldserver.getDimensionKey().a());
+             }
+ 
+             worldserver.save((IProgressUpdate) null, flag1, worldserver.savingDisabled && !flag2);
+@@ -881,7 +881,7 @@ public abstract class MinecraftServer extends IAsyncTaskHandlerReentrant<TickTas
+             if (hasStopped) return;
+             hasStopped = true;
+         }
+-        if (!hasLoggedStop && isDebugging()) TraceUtil.dumpTraceForThread("Server stopped"); // Paper
++        if (!hasLoggedStop && isDebugging()) TraceUtil.dumpTraceForThread("Stopped"); // Paper
+         // Paper start - kill main thread, and kill it hard
+         shutdownThread = Thread.currentThread();
+         org.spigotmc.WatchdogThread.doStop(); // Paper
+@@ -901,7 +901,7 @@ public abstract class MinecraftServer extends IAsyncTaskHandlerReentrant<TickTas
+         }
+         // Paper end
+         // CraftBukkit end
+-        MinecraftServer.LOGGER.info("Stopping server");
++        MinecraftServer.LOGGER.info("Stopping");
+         MinecraftTimings.stopServer(); // Paper
+         // CraftBukkit start
+         if (this.server != null) {
+@@ -971,7 +971,7 @@ public abstract class MinecraftServer extends IAsyncTaskHandlerReentrant<TickTas
+         com.destroystokyo.paper.io.PaperFileIOThread.Holder.INSTANCE.close(true, true); // Paper
+         LOGGER.info("Closing Thread Pool");
+         SystemUtils.shutdownServerThreadPool(); // Paper
+-        LOGGER.info("Closing Server");
++        LOGGER.info("Closing");
+         try {
+             net.minecrell.terminalconsole.TerminalConsoleAppender.close(); // Paper - Use TerminalConsoleAppender
+         } catch (Exception e) {
+@@ -1000,7 +1000,7 @@ public abstract class MinecraftServer extends IAsyncTaskHandlerReentrant<TickTas
+         this.isRunning = false;
+         this.isRestarting = isRestarting;
+         this.hasLoggedStop = true; // Paper
+-        if (isDebugging()) TraceUtil.dumpTraceForThread("Server stopped"); // Paper
++        if (isDebugging()) TraceUtil.dumpTraceForThread("Stopped"); // Paper
+         if (flag) {
+             try {
+                 this.serverThread.join();
+@@ -1088,7 +1088,7 @@ public abstract class MinecraftServer extends IAsyncTaskHandlerReentrant<TickTas
+                 // anything at 3+ won't be caught here but also will trip watchdog....
+                 // tasks are default scheduled at -1 + delay, and first tick will tick at 1
+                 String doneTime = String.format(java.util.Locale.ROOT, "%.3fs", (double) (SystemUtils.getMonotonicNanos() - serverStartTime) / 1.0E9D);
+-                LOGGER.info("Done ({})! For help, type \"help\"", doneTime);
++                LOGGER.info("Done ({})!", doneTime);
+                 // Paper end
+ 
+                 com.tuinity.tuinity.config.TuinityConfig.createWorldSections = false; // Tuinity - don't let plugin created worlds fill our config
+@@ -1104,7 +1104,7 @@ public abstract class MinecraftServer extends IAsyncTaskHandlerReentrant<TickTas
+                         long j = i / 50L;
+ 
+                         if (server.getWarnOnOverload()) // CraftBukkit
+-                            MinecraftServer.LOGGER.warn("Can't keep up! Is the server overloaded? Running {}ms or {} ticks behind", i, j);
++                            MinecraftServer.LOGGER.warn("Can't keep up! Running {}ms or {} ticks behind", i, j);
+                         this.nextTick += j * 50L;
+                         this.lastOverloadTime = this.nextTick;
+                     }

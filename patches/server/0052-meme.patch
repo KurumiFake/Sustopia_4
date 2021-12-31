@@ -1,0 +1,22 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: KurumiFake <kurumiisshidowife@gmail.com>
+Date: Fri, 31 Dec 2021 12:48:17 +0000
+Subject: [PATCH] meme
+
+
+diff --git a/src/main/java/net/minecraft/server/MinecraftServer.java b/src/main/java/net/minecraft/server/MinecraftServer.java
+index 68d65336c4d4ac72b457dd611832d70c18f07033..c64a90e0ccf86cd9736e9d49714f92802a7d2aae 100644
+--- a/src/main/java/net/minecraft/server/MinecraftServer.java
++++ b/src/main/java/net/minecraft/server/MinecraftServer.java
+@@ -275,9 +275,9 @@ public abstract class MinecraftServer extends IAsyncTaskHandlerReentrant<TickTas
+     public boolean forceTicks; // Paper
+     // CraftBukkit end
+     // Spigot start
+-    public static final int TPS = 20;
++    public static final int TPS = 40;
+     public static final int TICK_TIME = 1000000000 / TPS;
+-    private static final int SAMPLE_INTERVAL = 20; // Paper
++    private static final int SAMPLE_INTERVAL = 40; // Paper
+     public final double[] recentTps = new double[ 3 ];
+     public boolean lagging = false; // Purpur
+     public final SlackActivityAccountant slackActivityAccountant = new SlackActivityAccountant();

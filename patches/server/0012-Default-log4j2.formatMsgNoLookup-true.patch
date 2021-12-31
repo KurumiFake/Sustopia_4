@@ -5,6 +5,15 @@ Subject: [PATCH] Default log4j2.formatMsgNoLookup true
 
 im stil scared
 
+diff --git a/src/main/resources/log4j2.component.properties b/src/main/resources/log4j2.component.properties
+index 30efeb5faf8e7faccf1b252fa0ed6a9fc31c40a7..d38f3e8d0d04427fa1c9eaf32514989f1c68af3d 100644
+--- a/src/main/resources/log4j2.component.properties
++++ b/src/main/resources/log4j2.component.properties
+@@ -1,3 +1,4 @@
+ Log4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector
+ log4j2.AsyncQueueFullPolicy="com.destroystokyo.paper.log.LogFullPolicy"
+ log4j.skipJansi=true
++log4j2.formatMsgNoLookups=true
 diff --git a/src/main/resources/log4j2.xml b/src/main/resources/log4j2.xml
 index 67da1aa7a21622fb231d19dede3775a282a4a12e..6ebde61c98f96f37e3fda4bc67dac99b9d2839ab 100644
 --- a/src/main/resources/log4j2.xml
@@ -40,12 +49,3 @@ index 67da1aa7a21622fb231d19dede3775a282a4a12e..6ebde61c98f96f37e3fda4bc67dac99b
                  </LoggerNamePatternSelector>
              </PatternLayout>
              <Policies>
-diff --git a/src/main/resources/log4j2.component.properties b/src/main/resources/log4j2.component.properties
-index 30efeb5faf8e7faccf1b252fa0ed6a9fc31c40a7..d38f3e8d0d04427fa1c9eaf32514989f1c68af3d 100644
---- a/src/main/resources/log4j2.component.properties
-+++ b/src/main/resources/log4j2.component.properties
-@@ -1,3 +1,4 @@
- Log4jContextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector
- log4j2.AsyncQueueFullPolicy="com.destroystokyo.paper.log.LogFullPolicy"
- log4j.skipJansi=true
-+log4j2.formatMsgNoLookups=true

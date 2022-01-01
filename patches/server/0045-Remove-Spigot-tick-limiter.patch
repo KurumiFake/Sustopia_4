@@ -1,0 +1,80 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: KurumiFake <kurumiisshidowife@gmail.com>
+Date: Sat, 1 Jan 2022 01:54:20 +0000
+Subject: [PATCH] Remove Spigot tick limiter
+
+
+diff --git a/src/main/java/net/minecraft/world/level/World.java b/src/main/java/net/minecraft/world/level/World.java
+index 40adb4c9e846deb5cac83662e4de21d49287e4b9..0661d5aa3dca2726b328ffe73c41ffcc373fd328 100644
+--- a/src/main/java/net/minecraft/world/level/World.java
++++ b/src/main/java/net/minecraft/world/level/World.java
+@@ -177,8 +177,8 @@ public abstract class World implements GeneratorAccess, AutoCloseable, BlockEnti
+ 
+     public final co.aikar.timings.WorldTimingsHandler timings; // Paper
+     public static BlockPosition lastPhysicsProblem; // Spigot
+-    private org.spigotmc.TickLimiter entityLimiter;
+-    private org.spigotmc.TickLimiter tileLimiter;
++    /*private org.spigotmc.TickLimiter entityLimiter;
++    private org.spigotmc.TickLimiter tileLimiter;*/ // Sustopia - Remove Spigot tick limiter
+     private int tileTickPosition;
+     public final Map<Explosion.CacheKey, Float> explosionDensityCache = new HashMap<>(); // Paper - Optimize explosions
+     public java.util.ArrayDeque<BlockRedstoneTorch.RedstoneUpdateInfo> redstoneUpdateInfos; // Paper - Move from Map in BlockRedstoneTorch to here
+@@ -342,8 +342,8 @@ public abstract class World implements GeneratorAccess, AutoCloseable, BlockEnti
+         // CraftBukkit end
+         timings = new co.aikar.timings.WorldTimingsHandler(this); // Paper - code below can generate new world and access timings
+         this.keepSpawnInMemory = this.paperConfig.keepSpawnInMemory; // Paper
+-        this.entityLimiter = new org.spigotmc.TickLimiter(spigotConfig.entityMaxTickTime);
+-        this.tileLimiter = new org.spigotmc.TickLimiter(spigotConfig.tileMaxTickTime);
++        /*this.entityLimiter = new org.spigotmc.TickLimiter(spigotConfig.entityMaxTickTime);
++        this.tileLimiter = new org.spigotmc.TickLimiter(spigotConfig.tileMaxTickTime);*/ // Sustopia - Remove Spigot tick limiter
+         this.tileEntityListTick$lithium = new MaskedTickingBlockEntityList<>(this.tileEntityListTick, blockEntity -> ((SleepingBlockEntity) blockEntity).canTickOnSide(false)); // Yatopia
+         this.tileEntityListTick = tileEntityListTick$lithium; // Yatopia
+     }
+diff --git a/src/main/java/org/spigotmc/SpigotWorldConfig.java b/src/main/java/org/spigotmc/SpigotWorldConfig.java
+index 094a934c168d232b0550c3efe722f2ebfbdf8e24..cac95faa16688d6057421e27b1c830bd9309d0e1 100644
+--- a/src/main/java/org/spigotmc/SpigotWorldConfig.java
++++ b/src/main/java/org/spigotmc/SpigotWorldConfig.java
+@@ -397,14 +397,15 @@ public class SpigotWorldConfig
+         hangingTickFrequency = getInt( "hanging-tick-frequency", 100 );
+     }
+ 
+-    public int tileMaxTickTime;
++
++    /*public int tileMaxTickTime;
+     public int entityMaxTickTime;
+     private void maxTickTimes()
+     {
+         tileMaxTickTime = getInt("max-tick-time.tile", 50);
+         entityMaxTickTime = getInt("max-tick-time.entity", 50);
+         log("Tile Max Tick Time: " + tileMaxTickTime + "ms Entity max Tick Time: " + entityMaxTickTime + "ms");
+-    }
++    }*/ // Sustopia - Remove Spigot tick limiter
+ 
+     public double squidSpawnRangeMin;
+     private void squidSpawnRange()
+diff --git a/src/main/java/org/spigotmc/TickLimiter.java b/src/main/java/org/spigotmc/TickLimiter.java
+deleted file mode 100644
+index 23a39382be1541d31713a587a60079d0754c908b..0000000000000000000000000000000000000000
+--- a/src/main/java/org/spigotmc/TickLimiter.java
++++ /dev/null
+@@ -1,20 +0,0 @@
+-package org.spigotmc;
+-
+-public class TickLimiter {
+-
+-    private final int maxTime;
+-    private long startTime;
+-
+-    public TickLimiter(int maxtime) {
+-        this.maxTime = maxtime;
+-    }
+-
+-    public void initTick() {
+-        startTime = System.currentTimeMillis();
+-    }
+-
+-    public boolean shouldContinue() {
+-        long remaining = System.currentTimeMillis() - startTime;
+-        return remaining < maxTime;
+-    }
+-}

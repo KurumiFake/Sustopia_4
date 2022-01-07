@@ -1,0 +1,19 @@
+version: v1.0
+name: build
+agent:
+  machine:
+    type: e1-standard-2
+    os_image: ubuntu1804
+blocks:
+  - name: 'a'
+    task:
+      jobs:
+        - name: 'build'
+          commands:
+            - checkout
+            - git config --global user.email "kurumiisshidowife@gmail.com" && git config --global user.name KurumiFake
+            - ./gradlew applyPatches
+            - ./gradlew build
+            - ./gradlew paperclipJar
+            - mv sustopia-paperclip.jar "sustopia-paperclip-${SEMAPHORE_WORKFLOW_NUMBER}.jar"
+            - artifact push project "sustopia-paperclip-${SEMAPHORE_WORKFLOW_NUMBER}.jar"

@@ -11,7 +11,7 @@ jobs:
       - run: ./gradlew applyPatches
       - run: ./gradlew build
       - run: ./gradlew paperclipJar
-    resource_class: medium
+    resource_class: medium+
 workflows:
   jar:
     jobs:

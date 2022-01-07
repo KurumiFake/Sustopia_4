@@ -4,7 +4,7 @@ jobs:
     docker:
       - image: cimg/base:2022.01
     steps:
-      - run: sudo apt-get update && sudo apt-get install -y openjdk-8-jdk-headless maven --no-install-recommends
+      - run: sudo apt-get update && sudo apt-get install -y openjdk-8-jdk maven --no-install-recommends
       - run: java -version && mvn -ver
       - checkout
       - run: git config --global user.email "kurumiisshidowife@gmail.com" && git config --global user.name KurumiFake

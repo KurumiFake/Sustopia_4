@@ -6,7 +6,8 @@ its just me, who knows nothing bout java, copypastin patches lel
 
 ## Downloading
 
-go to de actions tab and grab the newest one from Build main xd
+Grab one from [the Semaphore CI](https://kurumifake.semaphoreci.com/artifacts/projects/ba484b45-67a9-4751-bd67-4e94e3bbc612)
+
 ## Building
 
 ```bash

@@ -8,9 +8,20 @@ jobs:
       - run: java -version && mvn -ver
       - checkout
       - run: git config --global user.email "kurumiisshidowife@gmail.com" && git config --global user.name KurumiFake
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum ('**/pom.xml') }}
+            - v1-dependencies-
       - run: ./gradlew applyPatches
       - run: ./gradlew build
-      - run: ./gradlew paperclipJar
+      - run: ./gradlew paperclip
+      - save_cache:
+            paths:
+              - ~/.m2
+            key: v1-dependencies-{{ checksum ('pom.xml') }}
+      - store_artifacts:
+          path: sustopia-paperclip.jar
+          destination: artifact-file
     resource_class: medium+
 workflows:
   jar:

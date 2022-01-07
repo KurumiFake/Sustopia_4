@@ -3,9 +3,7 @@ name: build
 agent:
   machine:
     type: e1-standard-2
-  containers:
-    - name: main
-      image: 'eclipse-temurin:8u312-b07-jre-focal'
+    os_image: ubuntu1804
 blocks:
   - name: 'a'
     task:

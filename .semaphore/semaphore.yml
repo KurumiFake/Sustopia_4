@@ -5,7 +5,7 @@ agent:
     type: e1-standard-2
   containers:
     - name: main
-      image: 'bellsoft/liberica-openjdk-alpine:8u312-7'
+      image: 'bellsoft/liberica-openjdk-debian:8u312-7'
 blocks:
   - name: 'a'
     task:

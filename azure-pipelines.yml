@@ -13,7 +13,7 @@ steps:
 - task: Gradle@2
   inputs:
     gradleWrapperFile: 'gradlew'
-    tasks: 'applyPatches,build,paperclip'
+    tasks: 'applyPatches'
     publishJUnitResults: true
     testResultsFiles: '**/TEST-*.xml'
     javaHomeOption: 'JDKVersion'

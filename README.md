@@ -1,3 +1,9 @@
+## duh speedrun archivin
+
+this repo has uhhh became unmaintainabl for a kid like me
+
+also the patches r mostly uncredited, sorry 4 that
+
 # Sustopia
 
 A sussy 1.16.5 [Airplane](https://airplane.gg) fork aimed at higher performance and better security while still relatively stable.
